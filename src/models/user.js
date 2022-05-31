@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
-  const user = sequelize.define(
-    "user",
+  const User = sequelize.define(
+    "User",
     {
       firstName: {
         type: DataTypes.STRING(20),
@@ -17,7 +17,7 @@ export default (sequelize, DataTypes) => {
     }
   );
 
-  user.associate = db => {};
+  User.associate = db => {};
 
-  return user;
+  return User;
 };

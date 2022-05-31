@@ -1,16 +1,24 @@
 import express from "express";
 import { createServer } from "@graphql-yoga/node";
+import morgan from "morgan";
+import "./module/env";
 import { schema } from "./graphql";
 import db from "./models";
+import { authenticateJwt } from "./passport";
 
 const graphQLServer = createServer({
-  schema
+  schema,
+  context: ({ request }) => ({ request })
 });
 
 const app = express();
-
+// sequelize 활성화
 db.sequelize.sync();
-
+// passport 활성화
+app.use(authenticateJwt);
+// 로그 활성화
+app.use(morgan("dev"));
+// graphql 활성화
 app.use("/graphql", graphQLServer);
 
 app.listen(4000, () => {
