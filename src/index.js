@@ -5,10 +5,11 @@ import "./module/env";
 import { schema } from "./graphql";
 import db from "./models";
 import { authenticateJwt } from "./passport";
+import { isAuthenticated } from "./module/middleware";
 
 const graphQLServer = createServer({
   schema,
-  context: ({ request }) => ({ request })
+  context: ({ request }) => ({ request, isAuthenticated, db })
 });
 
 const app = express();

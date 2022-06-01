@@ -1,0 +1,17 @@
+type Comment {
+  id: ID!
+  content: String!
+  user: User!
+  post: Post!
+  createdAt: String!
+  updatedAt: String!
+  deletedAt: String!
+}
+
+type Query {
+  posts: [Post]
+}
+
+type Mutation {
+  addPost(title: String!, description: String): Post
+}

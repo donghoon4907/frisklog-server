@@ -2,22 +2,46 @@ export default (sequelize, DataTypes) => {
   const User = sequelize.define(
     "User",
     {
-      firstName: {
-        type: DataTypes.STRING(20),
-        allowNull: false
+      nickname: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        comment: "별명"
       },
-      lastName: {
-        type: DataTypes.STRING(20),
-        allowNull: false
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        comment: "이메일"
+      },
+      isMaster: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        comment: "관리자 여부"
+      },
+      token: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: "인증 토큰"
+      },
+      avatar: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: "프로필사진"
       }
     },
     {
       charset: "utf8",
-      collate: "utf8_general_ci"
+      collate: "utf8_general_ci",
+      paranoid: true
     }
   );
 
-  User.associate = db => {};
+  User.associate = db => {
+    db.User.hasMany(db.Post, { as: "Posts" });
+    db.User.hasMany(db.Comment, { as: "UserComments" });
+    db.User.belongsToMany(db.Post, { through: "Like", as: "LikedPost" });
+  };
 
   return User;
 };
