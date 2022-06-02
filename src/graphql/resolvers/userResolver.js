@@ -6,14 +6,14 @@ export default {
     /**
      * 사용자 검색
      *
-     * @param {number?} args.lastId 마지막으로 검색된 사용자 ID
+     * @param {number?} args.offset 건너뛸 개수
      * @param {number} args.limit 검색결과 개수
      * @param {string?} args.order 정렬조건
      */
     users: async (_, args, { db }) => {
       const { offset = 0, limit, order = "createdAt_DESC" } = args;
 
-      return db.User.findAll({
+      return db.User.findAndCountAll({
         include: [
           {
             model: db.Post,
@@ -33,7 +33,7 @@ export default {
     user: async (_, args, { db }) => {
       const { id } = args;
 
-      const user = db.User.findOne({
+      const user = await db.User.findOne({
         where: { id },
         include: [
           {
@@ -43,7 +43,7 @@ export default {
         ]
       });
 
-      if (!user) {
+      if (user === null) {
         error({
           message: "존재하지 않는 사용자입니다.",
           status: 403
@@ -53,11 +53,7 @@ export default {
       return user;
     },
     me: async (_, __, { request, isAuthenticated, db }) => {
-      await isAuthenticated({ request });
-
-      const {
-        user: { id }
-      } = request;
+      const id = isAuthenticated({ request }, process.env.NODE_ENV);
 
       return db.User.findOne({
         where: { id },
@@ -81,18 +77,16 @@ export default {
 
       const user = await db.User.findOne({ where: { email } });
 
-      if (!user) {
+      if (user === null) {
         error({
           message: "등록되지 않은 이메일입니다.",
           status: 403
         });
       }
 
-      const jsonUser = user.toJSON();
+      user["token"] = generateToken({ id: user.id });
 
-      jsonUser["token"] = generateToken({ id: jsonUser.id });
-
-      return jsonUser;
+      return user;
     },
     /**
      * 사용자 등록
@@ -104,19 +98,19 @@ export default {
     addUser: async (_, args, { db }) => {
       const { email, nickname, avatar } = args;
 
-      const isExistUser = await db.User.findOne({
+      const user = await db.User.findOne({
         where: {
           [db.Sequelize.Op.or]: [{ email }, { nickname }]
         }
       });
 
-      if (isExistUser) {
-        if (isExistUser.email === email) {
+      if (user !== null) {
+        if (user.email === email) {
           error({
             message: "이미 사용중인 이메일입니다.",
             status: 403
           });
-        } else if (isExistUser.nickname === nickname) {
+        } else if (user.nickname === nickname) {
           error({
             message: "이미 사용중인 닉네임입니다.",
             status: 403
@@ -142,20 +136,17 @@ export default {
      * 내 정보 수정
      *
      * @param {string?} args.nickname 별명
-     * @param {string?} args.file 썸네일 경로
+     * @param {string?} args.avatar 프로필사진 경로
+     * @param {boolean?} args.isDev 개발 여부
      */
     updateUser: async (_, args, { request, isAuthenticated, db }) => {
-      await isAuthenticated({ request });
+      const { nickname, avatar, isDev } = args;
 
-      const {
-        user: { id }
-      } = request;
+      const id = isAuthenticated({ request }, isDev);
 
-      const { nickname, avatar } = args;
+      const me = await db.User.findByPk(id);
 
-      const me = await db.User.findOne({ where: { id } });
-
-      if (!me) {
+      if (me === null) {
         error({
           message: "존재하지 않는 사용자입니다.",
           status: 403
@@ -165,11 +156,11 @@ export default {
       if (nickname) {
         // 수정할 별명이 현재 별명과 다른 경우
         if (nickname !== me.nickname) {
-          const isExistNickname = await db.User.findOne({
+          const user = await db.User.findOne({
             where: { nickname }
           });
 
-          if (isExistNickname) {
+          if (user !== null) {
             error({
               message: "이미 존재하는 닉네임입니다.",
               status: 403
@@ -178,7 +169,7 @@ export default {
         }
       }
 
-      await db.User.update({ nickname, avatar }, { where: { id } });
+      await me.update({ nickname, avatar });
 
       return true;
     }

@@ -1,4 +1,0 @@
-type Avatar {
-  id: ID!
-  url: String!
-}

@@ -4,7 +4,7 @@ export default (sequelize, DataTypes) => {
     {
       title: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         comment: "제목"
       },
       description: {
@@ -20,6 +20,7 @@ export default (sequelize, DataTypes) => {
       viewCount: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        defaultValue: 0,
         comment: "조회수"
       },
       thumbnail: {
@@ -29,7 +30,7 @@ export default (sequelize, DataTypes) => {
       },
       category: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         comment: "카테고리명"
       }
     },

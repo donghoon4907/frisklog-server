@@ -7,10 +7,10 @@ type Notice {
   deletedAt: String!
 }
 
-type Query {
-  posts: [Post]
-}
+# type Query {
+#   # posts: [Post]
+# }
 
-type Mutation {
-  addPost(title: String!, description: String): Post
-}
+# type Mutation {
+#   addPost(title: String!, description: String): Post
+# }

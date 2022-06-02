@@ -5,7 +5,7 @@ export default (sequelize, DataTypes) => {
       useCount: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 0,
+        defaultValue: 1,
         comment: "사용횟수"
       },
       content: {

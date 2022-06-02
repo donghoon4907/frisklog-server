@@ -3,23 +3,59 @@ type Post {
   title: String!
   description: String!
   content: String!
-  user: User!
-  likeCount: Int!
-  likes: [Like!]!
+  User: User!
+  # likeCount: Int!
+  Likers: [Like!]!
   viewCount: Int!
   category: String!
-  comments: [Comment!]!
-  commentCount: Int!
+  PostComments: [Comment!]!
+  # commentCount: Int!
   thumbnail: String
   createdAt: String!
   updatedAt: String!
   deletedAt: String!
 }
 
+type PostList {
+  rows: [Post!]!
+  count: Int!
+}
+
 type Query {
-  posts: [Post]
+  posts(
+    offset: Int
+    limit: Int
+    order: String
+    searchKeyword: String
+    category: String
+    userId: Int
+    isThereThumb: Boolean
+  ): PostList!
+
+  post(id: Int!): Post!
 }
 
 type Mutation {
-  addPost(title: String!, description: String): Post
+  addPost(
+    title: String
+    description: String
+    content: String
+    category: String
+    thumbnail: String
+    isDev: Boolean
+  ): Boolean!
+
+  updatePost(
+    id: Int!
+    title: String
+    description: String
+    content: String
+    category: String
+    thumbnail: String
+    isDev: Boolean
+  ): Boolean!
+
+  deletePost(id: Int!, isDev: Boolean): Boolean!
+
+  likePost(id: Int!): Boolean!
 }
