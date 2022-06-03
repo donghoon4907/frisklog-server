@@ -40,7 +40,7 @@ export default (sequelize, DataTypes) => {
   User.associate = db => {
     db.User.hasMany(db.Post, { as: "Posts" });
     db.User.hasMany(db.Comment, { as: "UserComments" });
-    db.User.belongsToMany(db.Post, { through: "Like", as: "LikedPost" });
+    db.User.belongsToMany(db.Post, { through: "Likes", as: "LikedPost" });
   };
 
   return User;

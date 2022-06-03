@@ -44,7 +44,7 @@ export default (sequelize, DataTypes) => {
   Post.associate = db => {
     db.Post.belongsTo(db.User);
     db.Post.hasMany(db.Comment, { as: "PostComments" });
-    db.Post.belongsToMany(db.User, { through: "Like", as: "Likers" });
+    db.Post.belongsToMany(db.User, { through: "Likes", as: "Likers" });
   };
 
   return Post;

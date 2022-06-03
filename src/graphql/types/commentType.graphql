@@ -1,17 +1,16 @@
 type Comment {
   id: ID!
   content: String!
-  user: User!
-  post: Post!
+  User: User!
   createdAt: String!
   updatedAt: String!
   deletedAt: String!
 }
 
-# type Query {
-#   # posts: [Post]
-# }
+type Mutation {
+  addComment(postId: Int!, content: String!, isDev: Boolean): Boolean!
 
-# type Mutation {
-#   # addPost(title: String!, description: String): Post
-# }
+  updateComment(id: Int!, content: String!, isDev: Boolean): Boolean!
+
+  deleteComment(id: Int!, isDev: Boolean): Boolean!
+}

@@ -5,8 +5,8 @@ type User {
   isMaster: Boolean!
   avatar: String
   Posts: [Post!]!
-  likes: [Like!]!
-  comments: [Comment!]!
+  # likes: [Like!]!
+  UserComments: [Comment!]!
   # postCount: Int!
   token: String
   createdAt: String!

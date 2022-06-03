@@ -5,7 +5,7 @@ type Post {
   content: String!
   User: User!
   # likeCount: Int!
-  Likers: [Like!]!
+  Likers: [User!]!
   viewCount: Int!
   category: String!
   PostComments: [Comment!]!
@@ -57,5 +57,7 @@ type Mutation {
 
   deletePost(id: Int!, isDev: Boolean): Boolean!
 
-  likePost(id: Int!): Boolean!
+  likePost(id: Int!, isDev: Boolean): Boolean!
+
+  unlikePost(id: Int!, isDev: Boolean): Boolean!
 }

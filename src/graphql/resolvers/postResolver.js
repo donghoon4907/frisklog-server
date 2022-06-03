@@ -66,7 +66,12 @@ export default {
           },
           {
             model: db.Comment,
-            as: "PostComments"
+            as: "PostComments",
+            include: [
+              {
+                model: db.User
+              }
+            ]
           }
         ],
         order: [order.split("_")],
@@ -98,7 +103,7 @@ export default {
         });
       }
 
-      console.log(request.body.req);
+      // to-be 조회수 증가
 
       return post;
     }
@@ -164,7 +169,7 @@ export default {
 
       const userId = isAuthenticated({ request }, isDev);
 
-      const post = await db.Post.findOne({ where: { id } });
+      const post = await db.Post.findByPk(id);
 
       if (post === null) {
         error({
@@ -210,6 +215,54 @@ export default {
       }
 
       await post.destroy();
+
+      return true;
+    },
+    /**
+     * 게시물 좋아요
+     *
+     * @param {string?} args.id 게시물 ID
+     * @param {boolean?} args.isDev 개발 여부
+     */
+    likePost: async (_, args, { request, isAuthenticated, db }) => {
+      const { id, isDev } = args;
+
+      const userId = isAuthenticated({ request }, isDev);
+
+      const post = await db.Post.findByPk(id);
+
+      if (post === null) {
+        error({
+          message: "존재하지 않는 게시물입니다.",
+          status: 403
+        });
+      } else {
+        await post.addLiker(userId);
+      }
+
+      return true;
+    },
+    /**
+     * 게시물 좋아요 취소
+     *
+     * @param {string?} args.id 게시물 ID
+     * @param {boolean?} args.isDev 개발 여부
+     */
+    unlikePost: async (_, args, { request, isAuthenticated, db }) => {
+      const { id, isDev } = args;
+
+      const userId = isAuthenticated({ request }, isDev);
+
+      const post = await db.Post.findByPk(id);
+
+      if (post === null) {
+        error({
+          message: "존재하지 않는 게시물입니다.",
+          status: 403
+        });
+      } else {
+        await post.removeLiker(userId);
+      }
 
       return true;
     }

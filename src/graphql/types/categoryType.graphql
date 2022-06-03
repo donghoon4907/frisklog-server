@@ -1,5 +1,0 @@
-type Category {
-  id: ID!
-  content: String!
-  useCount: Int!
-}
