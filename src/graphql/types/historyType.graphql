@@ -1,6 +1,0 @@
-type History {
-  id: ID!
-  post: Post!
-  ip: String!
-  createdAt: String!
-}

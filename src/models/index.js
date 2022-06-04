@@ -1,26 +1,26 @@
 import Sequelize from "sequelize";
-import config from "../config";
+import { mysqlConfig } from "../config";
 import User from "./user";
 import Post from "./post";
 import Comment from "./comment";
-import Category from "./category";
-import History from "./history";
-import Notice from "./notice";
+// import Category from "./category";
+// import History from "./history";
+// import Notice from "./notice";
 
 const env = process.env.NODE_ENV || "development";
 
-const { database, username, password } = config[env];
+const { database, username, password } = mysqlConfig[env];
 
 const db = {};
 
-const sequelize = new Sequelize(database, username, password, config[env]);
+const sequelize = new Sequelize(database, username, password, mysqlConfig[env]);
 
 db.User = User(sequelize, Sequelize);
 db.Post = Post(sequelize, Sequelize);
 db.Comment = Comment(sequelize, Sequelize);
-db.Category = Category(sequelize, Sequelize);
-db.History = History(sequelize, Sequelize);
-db.Notice = Notice(sequelize, Sequelize);
+// db.Category = Category(sequelize, Sequelize);
+// db.History = History(sequelize, Sequelize);
+// db.Notice = Notice(sequelize, Sequelize);
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {

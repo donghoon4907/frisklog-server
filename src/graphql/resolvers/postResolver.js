@@ -84,7 +84,7 @@ export default {
      *
      * @param {number} args.id 게시물 ID
      */
-    post: async (_, args, { request, db }) => {
+    post: async (_, args, { db }) => {
       const { id } = args;
 
       const post = await db.Post.findOne({
@@ -122,7 +122,7 @@ export default {
     addPost: async (_, args, { request, isAuthenticated, db }) => {
       const { title, description, content, category, thumbnail, isDev } = args;
 
-      const id = isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request }, isDev);
 
       await db.Post.create({
         title,
@@ -130,7 +130,7 @@ export default {
         content,
         category,
         thumbnail,
-        UserId: id
+        UserId: me.id
       });
 
       // if (category) {
@@ -167,7 +167,7 @@ export default {
         isDev
       } = args;
 
-      const userId = isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request }, isDev);
 
       const post = await db.Post.findByPk(id);
 
@@ -177,7 +177,7 @@ export default {
           status: 403
         });
         // 본인 게시물이 아닌 경우
-      } else if (post.UserId !== userId) {
+      } else if (post.UserId !== me.id) {
         error({
           message: "잘못된 접근입니다.",
           status: 403
@@ -197,7 +197,7 @@ export default {
     deletePost: async (_, args, { request, isAuthenticated, db }) => {
       const { id, isDev } = args;
 
-      const userId = isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request }, isDev);
 
       const post = await db.Post.findByPk(id);
 
@@ -207,7 +207,7 @@ export default {
           status: 403
         });
         // 본인 게시물이 아닌 경우
-      } else if (post.UserId !== userId) {
+      } else if (post.UserId !== me.id) {
         error({
           message: "잘못된 접근입니다.",
           status: 403
@@ -227,7 +227,7 @@ export default {
     likePost: async (_, args, { request, isAuthenticated, db }) => {
       const { id, isDev } = args;
 
-      const userId = isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request }, isDev);
 
       const post = await db.Post.findByPk(id);
 
@@ -237,7 +237,7 @@ export default {
           status: 403
         });
       } else {
-        await post.addLiker(userId);
+        await post.addLiker(me.id);
       }
 
       return true;
@@ -251,7 +251,7 @@ export default {
     unlikePost: async (_, args, { request, isAuthenticated, db }) => {
       const { id, isDev } = args;
 
-      const userId = isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request }, isDev);
 
       const post = await db.Post.findByPk(id);
 
@@ -261,7 +261,7 @@ export default {
           status: 403
         });
       } else {
-        await post.removeLiker(userId);
+        await post.removeLiker(me.id);
       }
 
       return true;

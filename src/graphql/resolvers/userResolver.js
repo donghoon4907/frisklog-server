@@ -53,7 +53,9 @@ export default {
       return user;
     },
     me: async (_, __, { request, isAuthenticated, db }) => {
-      const id = isAuthenticated({ request }, process.env.NODE_ENV);
+      const isDev = process.env.NODE_ENV === "development";
+
+      const { id } = await isAuthenticated({ request }, isDev);
 
       return db.User.findOne({
         where: { id },
@@ -142,16 +144,7 @@ export default {
     updateUser: async (_, args, { request, isAuthenticated, db }) => {
       const { nickname, avatar, isDev } = args;
 
-      const id = isAuthenticated({ request }, isDev);
-
-      const me = await db.User.findByPk(id);
-
-      if (me === null) {
-        error({
-          message: "존재하지 않는 사용자입니다.",
-          status: 403
-        });
-      }
+      const me = await isAuthenticated({ request }, isDev);
 
       if (nickname) {
         // 수정할 별명이 현재 별명과 다른 경우

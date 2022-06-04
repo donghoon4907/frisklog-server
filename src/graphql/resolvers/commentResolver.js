@@ -12,7 +12,7 @@ export default {
     addComment: async (_, args, { request, isAuthenticated, db }) => {
       const { postId, content, isDev } = args;
 
-      const userId = isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request }, isDev);
 
       const post = await db.Post.findByPk(postId);
 
@@ -25,7 +25,7 @@ export default {
 
       await db.Comment.create({
         content,
-        UserId: userId,
+        UserId: me.id,
         PostId: postId
       });
 
@@ -41,7 +41,7 @@ export default {
     updateComment: async (_, args, { request, isAuthenticated, db }) => {
       const { id, content, isDev } = args;
 
-      const userId = isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request }, isDev);
 
       const comment = await db.Comment.findByPk(id);
 
@@ -51,7 +51,7 @@ export default {
           status: 403
         });
         // 본인 댓글이 아닌 경우
-      } else if (comment.UserId !== userId) {
+      } else if (comment.UserId !== me.id) {
         error({
           message: "잘못된 접근입니다.",
           status: 403
@@ -71,7 +71,7 @@ export default {
     deleteComment: async (_, args, { request, isAuthenticated, db }) => {
       const { id, isDev } = args;
 
-      const userId = isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request }, isDev);
 
       const comment = await db.Comment.findByPk(id);
 
@@ -81,7 +81,7 @@ export default {
           status: 403
         });
         // 본인 댓글이 아닌 경우
-      } else if (comment.UserId !== userId) {
+      } else if (comment.UserId !== me.id) {
         error({
           message: "잘못된 접근입니다.",
           status: 403
