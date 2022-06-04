@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel src -d build",
+    "build": "rimraf build && cross-env NODE_ENV=production babel src -d build && cd src && npx copy ./**/**/*.graphql ../build/",
     "dev": "cross-env NODE_ENV=development nodemon --exec babel-node src/index.js",
-    "start": "node build/index.js"
+    "start": "cross-env NODE_ENV=production node build/index.js"
   },
   "author": "frisk",
   "license": "ISC",
@@ -35,7 +35,9 @@
     "@babel/node": "^7.17.10",
     "@babel/plugin-transform-runtime": "^7.18.2",
     "@babel/preset-env": "^7.18.2",
+    "copy": "^0.3.2",
     "cross-env": "^7.0.3",
-    "nodemon": "^2.0.16"
+    "nodemon": "^2.0.16",
+    "rimraf": "^3.0.2"
   }
 }
