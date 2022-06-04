@@ -19,14 +19,14 @@ Frisklog는 여러 사용자들이 작성한 글을 공유할 수 있도록 만�
 * `HOST` = DB 호스트명 ex)127.0.0.1
 * `DB` - Database명
 * `DB_TYPE` - DB 종류 ex) mysql
-* `DOMAIN` - 도메인 주소 ex) http://localhost
+* `DOMAIN` - 도메인 주소 ex) `http://localhost`
 * `PORT` - 서버 포트 ex) 4000
 * `JWT_SECRET` - 토큰 시크릿 코드
 
 
 ## API
 
-Frisklog에서 사용된 API를 테스트할 수 있도록 AWS EC2를 사용한 간단한 서버를 만들었습니다. [링크](http://3.34.179.56:4000/graphql)를 이용해 확인하세요.
+Frisklog에서 사용된 API를 테스트할 수 있도록 AWS EC2를 사용한 간단한 서버를 만들었습니다. [링크](http://3.34.179.56:4000/graphql){: target="_blank"}를 이용해 확인하세요.
 
 ### Query
 
@@ -34,13 +34,13 @@ Frisklog에서 사용된 API를 테스트할 수 있도록 AWS EC2를 사용한 
 
 * `offset` **{Int?}**: 데이터를 가져오기 시작할 위치
 * `limit` **{Int?}**: 호출 시 데이터양
-* `order` **{String?}**: 정렬 ex) createdAt_ASC
+* `order` **{String?}**: 정렬 ex) createdAt_DESC
 
 **Example**
 
 ```graphql
 query {
-  users {
+  users(offset: 0, limit: 30. orderBy: "createdAt_ASC") {
     rows {
       id
       email
