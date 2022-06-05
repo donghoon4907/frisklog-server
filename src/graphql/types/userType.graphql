@@ -6,12 +6,10 @@ type User {
   avatar: String
   Posts: [Post!]!
   # likes: [Like!]!
-  UserComments: [Comment!]!
+  # UserComments: [Comment!]!
   # postCount: Int!
-  token: String
   createdAt: String!
   updatedAt: String!
-  deletedAt: String!
 }
 
 type UserList {

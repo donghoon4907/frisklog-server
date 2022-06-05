@@ -34,7 +34,7 @@ export default {
         ["title", "description"].forEach(column => {
           where[db.Sequelize.Op.or].push({
             [column]: {
-              [db.Sequelize.Op.like]: `${searchKeyword}%`
+              [db.Sequelize.Op.like]: `%${searchKeyword}%`
             }
           });
         });

@@ -4,7 +4,6 @@ type Comment {
   User: User!
   createdAt: String!
   updatedAt: String!
-  deletedAt: String!
 }
 
 type Mutation {
