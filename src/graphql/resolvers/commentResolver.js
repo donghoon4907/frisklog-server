@@ -1,4 +1,7 @@
-import { error } from "../../module/http";
+import { frisklogGraphQLError } from "../../module/http";
+import { COMMENT_NOT_FOUND } from "../../config/message/comment";
+import { POST_NOT_FOUND } from "../../config/message/post";
+import { WRONG_APPROACH } from "../../config/message";
 
 export default {
   Mutation: {
@@ -17,8 +20,7 @@ export default {
       const post = await db.Post.findByPk(postId);
 
       if (post === null) {
-        error({
-          message: "존재하지 않는 게시물입니다.",
+        frisklogGraphQLError(POST_NOT_FOUND, {
           status: 403
         });
       }
@@ -46,14 +48,12 @@ export default {
       const comment = await db.Comment.findByPk(id);
 
       if (comment === null) {
-        error({
-          message: "존재하지 않는 댓글입니다.",
+        frisklogGraphQLError(COMMENT_NOT_FOUND, {
           status: 403
         });
         // 본인 댓글이 아닌 경우
       } else if (comment.UserId !== me.id) {
-        error({
-          message: "잘못된 접근입니다.",
+        frisklogGraphQLError(WRONG_APPROACH, {
           status: 403
         });
       }
@@ -76,14 +76,12 @@ export default {
       const comment = await db.Comment.findByPk(id);
 
       if (comment === null) {
-        error({
-          message: "존재하지 않는 댓글입니다.",
+        frisklogGraphQLError(COMMENT_NOT_FOUND, {
           status: 403
         });
         // 본인 댓글이 아닌 경우
       } else if (comment.UserId !== me.id) {
-        error({
-          message: "잘못된 접근입니다.",
+        frisklogGraphQLError(WRONG_APPROACH, {
           status: 403
         });
       }

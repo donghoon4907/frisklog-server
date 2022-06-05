@@ -1,5 +1,10 @@
-import { error } from "../../module/http";
+import { frisklogGraphQLError } from "../../module/http";
 import { generateToken } from "../../module/token";
+import {
+  USER_NOT_FOUND,
+  USER_USING_EMAIL,
+  USER_USING_NICKNAME
+} from "../../config/message/user";
 
 export default {
   Query: {
@@ -44,8 +49,7 @@ export default {
       });
 
       if (user === null) {
-        error({
-          message: "존재하지 않는 사용자입니다.",
+        frisklogGraphQLError(USER_NOT_FOUND, {
           status: 403
         });
       }
@@ -80,8 +84,7 @@ export default {
       const user = await db.User.findOne({ where: { email } });
 
       if (user === null) {
-        error({
-          message: "등록되지 않은 이메일입니다.",
+        frisklogGraphQLError(USER_NOT_FOUND, {
           status: 403
         });
       }
@@ -108,15 +111,9 @@ export default {
 
       if (user !== null) {
         if (user.email === email) {
-          error({
-            message: "이미 사용중인 이메일입니다.",
-            status: 403
-          });
+          frisklogGraphQLError(USER_USING_EMAIL, { status: 403 });
         } else if (user.nickname === nickname) {
-          error({
-            message: "이미 사용중인 닉네임입니다.",
-            status: 403
-          });
+          frisklogGraphQLError(USER_USING_NICKNAME, { status: 403 });
         }
       }
 
@@ -125,12 +122,6 @@ export default {
         nickname,
         avatar
       });
-
-      // if (file) {
-      //   const newAvatar = await db.Avatar.create({ url: file });
-
-      //   await newUser.setAvatar(newAvatar);
-      // }
 
       return true;
     },
@@ -154,8 +145,7 @@ export default {
           });
 
           if (user !== null) {
-            error({
-              message: "이미 존재하는 닉네임입니다.",
+            frisklogGraphQLError(USER_USING_NICKNAME, {
               status: 403
             });
           }

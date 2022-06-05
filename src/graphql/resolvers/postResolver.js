@@ -1,4 +1,6 @@
-import { error } from "../../module/http";
+import { frisklogGraphQLError } from "../../module/http";
+import { POST_NOT_FOUND } from "../../config/message/post";
+import { WRONG_APPROACH } from "../../config/message";
 
 export default {
   Query: {
@@ -97,8 +99,7 @@ export default {
       });
 
       if (post === null) {
-        error({
-          message: "존재하지 않는 게시물입니다.",
+        frisklogGraphQLError(POST_NOT_FOUND, {
           status: 403
         });
       }
@@ -133,16 +134,6 @@ export default {
         UserId: me.id
       });
 
-      // if (category) {
-      //   const [catResult, created] = await db.Category.findOrCreate({
-      //     where: { content: category }
-      //   });
-
-      //   if (!created) {
-      //     await catResult.update({ useCount: catResult.useCount + 1 });
-      //   }
-      // }
-
       return true;
     },
     /**
@@ -172,14 +163,12 @@ export default {
       const post = await db.Post.findByPk(id);
 
       if (post === null) {
-        error({
-          message: "존재하지 않는 게시물입니다.",
+        frisklogGraphQLError(POST_NOT_FOUND, {
           status: 403
         });
         // 본인 게시물이 아닌 경우
       } else if (post.UserId !== me.id) {
-        error({
-          message: "잘못된 접근입니다.",
+        frisklogGraphQLError(WRONG_APPROACH, {
           status: 403
         });
       }
@@ -202,14 +191,12 @@ export default {
       const post = await db.Post.findByPk(id);
 
       if (post === null) {
-        error({
-          message: "존재하지 않는 게시물입니다.",
+        frisklogGraphQLError(POST_NOT_FOUND, {
           status: 403
         });
         // 본인 게시물이 아닌 경우
       } else if (post.UserId !== me.id) {
-        error({
-          message: "잘못된 접근입니다.",
+        frisklogGraphQLError(WRONG_APPROACH, {
           status: 403
         });
       }
@@ -232,8 +219,7 @@ export default {
       const post = await db.Post.findByPk(id);
 
       if (post === null) {
-        error({
-          message: "존재하지 않는 게시물입니다.",
+        frisklogGraphQLError(POST_NOT_FOUND, {
           status: 403
         });
       } else {
@@ -256,8 +242,7 @@ export default {
       const post = await db.Post.findByPk(id);
 
       if (post === null) {
-        error({
-          message: "존재하지 않는 게시물입니다.",
+        frisklogGraphQLError(POST_NOT_FOUND, {
           status: 403
         });
       } else {

@@ -1,6 +1,7 @@
-import { error } from "./http";
+import { frisklogGraphQLError } from "./http";
 import { decodeToken } from "../module/token";
 import db from "../models";
+import { WRONG_AUTH, EXPIRED_AUTH } from "../config/message";
 
 /**
  * 인증 세션 체크
@@ -16,13 +17,16 @@ export const isAuthenticated = async ({ request }, isDev) => {
   } else {
     const authorization = request.headers.get("authorization");
 
-    const token = authorization.split(" ")[1];
+    try {
+      const token = authorization.split(" ")[1];
 
-    id = decodeToken(token);
+      id = decodeToken(token);
 
-    if (id === null) {
-      error({
-        message: "인증 오류가 발생했습니다. 로그인 페이지로 이동합니다.",
+      if (id === null) {
+        throw new Exception("test");
+      }
+    } catch (_) {
+      frisklogGraphQLError(WRONG_AUTH, {
         status: 401
       });
     }
@@ -31,8 +35,7 @@ export const isAuthenticated = async ({ request }, isDev) => {
   const user = await db.User.findByPk(id);
 
   if (user === null) {
-    error({
-      message: "세션이 만료되었습니다. 로그인 페이지로 이동합니다.",
+    frisklogGraphQLError(EXPIRED_AUTH, {
       status: 401
     });
   }
