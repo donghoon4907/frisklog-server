@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export default (sequelize, DataTypes) => {
   const Comment = sequelize.define(
     "Comment",
@@ -6,6 +8,22 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: false,
         comment: "내용"
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        get() {
+          return moment(this.getDataValue("createdAt")).format(
+            "YYYY-MM-DD HH:mm:ss"
+          );
+        }
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        get() {
+          return moment(this.getDataValue("updatedAt")).format(
+            "YYYY-MM-DD HH:mm:ss"
+          );
+        }
       }
     },
     {

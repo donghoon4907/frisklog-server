@@ -48,6 +48,8 @@ export default {
         ]
       });
 
+      console.log(user.createdAt);
+
       if (user === null) {
         frisklogGraphQLError(USER_NOT_FOUND, {
           status: 403
