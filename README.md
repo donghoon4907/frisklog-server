@@ -26,7 +26,7 @@ Frisklog는 여러 사용자들이 작성한 글을 공유할 수 있도록 만�
 
 ## API
 
-Frisklog에서 사용된 API를 테스트할 수 있도록 AWS EC2를 사용한 간단한 서버를 만들었습니다. <a href="http://3.34.179.56:4000/graphql" target="_blank">링크</a>에서 확인하세요.
+Frisklog에서 사용된 API를 테스트할 수 있도록 AWS EC2를 사용한 간단한 서버를 만들었습니다. <a href="http://frisklog.site:4000/graphql" target="_blank">링크</a>에서 확인하세요.
 
 
 ### 1. Query
@@ -60,7 +60,7 @@ query {
 
 * `email` **{String}**: 이메일
 * `nickname` **{String}**: 별명
-* `avatar` **{String?}**: 썸네일
+* `avatar` **{String?}**: 프로필사진 경로
 
 **Example**
 
