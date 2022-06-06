@@ -11,7 +11,7 @@ const graphQLServer = createServer({
   schema,
   context: ({ request }) => ({ request, isAuthenticated, db }),
   cors: {
-    origin: `${process.env.DOMAIN}:${process.env.PORT}`,
+    origin: "*",
     methods: ["POST"]
   }
 });
@@ -26,6 +26,6 @@ app.use(morgan("dev"));
 // graphql 활성화
 app.use("/graphql", graphQLServer);
 
-app.listen(4000, () => {
+app.listen(process.env.PORT, () => {
   console.log("Running a GraphQL API server");
 });
