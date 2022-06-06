@@ -10,10 +10,7 @@ import { isAuthenticated } from "./module/middleware";
 const graphQLServer = createServer({
   schema,
   context: ({ request }) => ({ request, isAuthenticated, db }),
-  cors: {
-    origin: "*",
-    methods: ["POST"]
-  }
+  cors: false
 });
 
 const app = express();
