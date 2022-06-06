@@ -60,7 +60,7 @@ query {
 
 * `email` **{String}**: 이메일
 * `nickname` **{String}**: 별명
-* `avatar` **{String?}**: 썸네일
+* `avatar` **{String?}**: 
 
 **Example**
 
