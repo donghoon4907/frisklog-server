@@ -8,6 +8,7 @@ type User {
   # likes: [Like!]!
   # UserComments: [Comment!]!
   # postCount: Int!
+  token: String
   createdAt: String!
   updatedAt: String!
 }

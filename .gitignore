@@ -117,4 +117,7 @@ build
 # Serverless Webpack directories
 .webpack/
 
+# upload folder
+src/upload/*
+
 # End of https://www.toptal.com/developers/gitignore/api/node
