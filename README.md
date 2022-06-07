@@ -19,7 +19,6 @@ Frisklog는 여러 사용자들이 작성한 글을 공유할 수 있도록 만�
 * `HOST` = DB 호스트명 `ex) 127.0.0.1`
 * `DB` - Database명
 * `DB_TYPE` - DB 종류 `ex) mysql`
-* `DOMAIN` - 도메인 주소 `ex) http://localhost`
 * `PORT` - 서버 포트 `ex) 4000`
 * `JWT_SECRET` - 토큰 시크릿 코드
 
