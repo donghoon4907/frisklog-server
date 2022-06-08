@@ -27,7 +27,7 @@ type Query {
     order: String
     searchKeyword: String
     category: String
-    userId: Int
+    userId: String
     isThereThumb: Boolean
   ): PostList!
 
@@ -45,7 +45,7 @@ type Mutation {
   ): Boolean!
 
   updatePost(
-    id: Int!
+    id: String!
     title: String
     description: String
     content: String
@@ -54,9 +54,9 @@ type Mutation {
     isDev: Boolean
   ): Boolean!
 
-  deletePost(id: Int!, isDev: Boolean): Boolean!
+  deletePost(id: String!, isDev: Boolean): Boolean!
 
-  likePost(id: Int!, isDev: Boolean): Boolean!
+  likePost(id: String!, isDev: Boolean): Boolean!
 
-  unlikePost(id: Int!, isDev: Boolean): Boolean!
+  unlikePost(id: String!, isDev: Boolean): Boolean!
 }

@@ -21,7 +21,7 @@ type UserList {
 type Query {
   users(offset: Int, limit: Int, order: String): UserList!
 
-  user(id: Int!): User!
+  user(id: String!): User!
 
   me: User!
 }

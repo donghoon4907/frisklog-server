@@ -208,7 +208,7 @@ export default {
     /**
      * 게시물 좋아요
      *
-     * @param {string?} args.id 게시물 ID
+     * @param {string} args.id 게시물 ID
      * @param {boolean?} args.isDev 개발 여부
      */
     likePost: async (_, args, { request, isAuthenticated, db }) => {

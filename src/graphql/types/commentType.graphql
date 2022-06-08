@@ -7,9 +7,9 @@ type Comment {
 }
 
 type Mutation {
-  addComment(postId: Int!, content: String!, isDev: Boolean): Boolean!
+  addComment(postId: String!, content: String!, isDev: Boolean): Boolean!
 
-  updateComment(id: Int!, content: String!, isDev: Boolean): Boolean!
+  updateComment(id: String!, content: String!, isDev: Boolean): Boolean!
 
-  deleteComment(id: Int!, isDev: Boolean): Boolean!
+  deleteComment(id: String!, isDev: Boolean): Boolean!
 }

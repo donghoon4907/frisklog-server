@@ -20,10 +20,10 @@ export const isAuthenticated = async ({ request }, isDev) => {
     try {
       const token = authorization.split(" ")[1];
 
-      id = decodeToken(token);
+      id = decodeToken(token).id;
 
       if (id === null) {
-        throw new Exception("test");
+        throw new Exception();
       }
     } catch (_) {
       frisklogGraphQLError(WRONG_AUTH, {

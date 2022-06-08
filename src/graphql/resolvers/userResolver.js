@@ -48,8 +48,6 @@ export default {
         ]
       });
 
-      console.log(user.createdAt);
-
       if (user === null) {
         frisklogGraphQLError(USER_NOT_FOUND, {
           status: 403
@@ -59,18 +57,10 @@ export default {
       return user;
     },
     me: async (_, __, { request, isAuthenticated, db }) => {
-      const isDev = process.env.NODE_ENV === "development";
-
-      const { id } = await isAuthenticated({ request }, isDev);
+      const { id } = await isAuthenticated({ request });
 
       return db.User.findOne({
-        where: { id },
-        include: [
-          {
-            model: db.Post,
-            as: "Posts"
-          }
-        ]
+        where: { id }
       });
     }
   },
@@ -91,7 +81,7 @@ export default {
         });
       }
 
-      user["token"] = generateToken({ id: user.id });
+      user["token"] = generateToken(user);
 
       return user;
     },
