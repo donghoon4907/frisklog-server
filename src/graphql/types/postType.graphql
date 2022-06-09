@@ -8,7 +8,7 @@ type Post {
   Likers: [User!]!
   viewCount: Int!
   category: String
-  PostComments: [Comment!]!
+  # PostComments: [Comment!]!
   # commentCount: Int!
   thumbnail: String
   createdAt: String!
@@ -31,7 +31,7 @@ type Query {
     isThereThumb: Boolean
   ): PostList!
 
-  post(id: Int!): Post!
+  post(id: String!): Post!
 }
 
 type Mutation {

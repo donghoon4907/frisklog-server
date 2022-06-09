@@ -6,6 +6,15 @@ type Comment {
   updatedAt: String!
 }
 
+type CommentList {
+  rows: [Comment!]!
+  count: Int!
+}
+
+type Query {
+  comments(offset: Int, limit: Int, order: String, postId: String): CommentList!
+}
+
 type Mutation {
   addComment(postId: String!, content: String!, isDev: Boolean): Boolean!
 

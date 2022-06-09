@@ -4,6 +4,37 @@ import { POST_NOT_FOUND } from "../../config/message/post";
 import { WRONG_APPROACH } from "../../config/message";
 
 export default {
+  Query: {
+    /**
+     * 댓글 검색
+     *
+     * @param {number?} args.offset 건너뛸 개수
+     * @param {number?} args.limit  검색결과 개수
+     * @param {string?} args.order  정렬조건
+     * @param {number?} args.postId 게시물 ID
+     */
+    comments: async (_, args, { db }) => {
+      const { offset = 0, limit, order = "createdAt_DESC", postId } = args;
+
+      const where = {};
+
+      if (postId) {
+        where["PostId"] = postId;
+      }
+
+      return db.Comment.findAndCountAll({
+        where,
+        include: [
+          {
+            model: db.User
+          }
+        ],
+        order: [order.split("_")],
+        limit,
+        offset
+      });
+    }
+  },
   Mutation: {
     /**
      * 댓글 등록

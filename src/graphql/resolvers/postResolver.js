@@ -8,7 +8,7 @@ export default {
      * 게시물 검색
      *
      * @param {number?} args.offset 건너뛸 개수
-     * @param {number} args.limit 검색결과 개수
+     * @param {number?} args.limit 검색결과 개수
      * @param {string?} args.order 정렬조건
      * @param {string?} args.searchKeyword 검색어
      * @param {string?} args.category 카테고리
@@ -65,16 +65,16 @@ export default {
           {
             model: db.User,
             as: "Likers"
-          },
-          {
-            model: db.Comment,
-            as: "PostComments",
-            include: [
-              {
-                model: db.User
-              }
-            ]
           }
+          // {
+          //   model: db.Comment,
+          //   as: "PostComments",
+          //   include: [
+          //     {
+          //       model: db.User
+          //     }
+          //   ]
+          // }
         ],
         order: [order.split("_")],
         limit,
@@ -94,7 +94,20 @@ export default {
         include: [
           {
             model: db.User
+          },
+          {
+            model: db.User,
+            as: "Likers"
           }
+          // {
+          //   model: db.Comment,
+          //   as: "PostComments",
+          //   include: [
+          //     {
+          //       model: db.User
+          //     }
+          //   ]
+          // }
         ]
       });
 
