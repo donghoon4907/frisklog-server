@@ -1,3 +1,4 @@
+import { QueryTypes } from "sequelize";
 import { frisklogGraphQLError } from "../../module/http";
 import { generateToken } from "../../module/token";
 import {
@@ -12,7 +13,7 @@ export default {
      * 사용자 검색
      *
      * @param {number?} args.offset 건너뛸 개수
-     * @param {number?} args.limit 검색결과 개수
+     * @param {number} args.limit 검색결과 개수
      * @param {string?} args.order 정렬조건
      */
     users: async (_, args, { db }) => {
@@ -29,6 +30,30 @@ export default {
         limit,
         offset
       });
+    },
+    /**
+     * 추천 사용자 검색
+     *
+     * @param {number?} args.offset 건너뛸 개수
+     * @param {number} args.limit 검색결과 개수
+     */
+    recommenders: async (_, args, { db }) => {
+      const { offset = 0, limit } = args;
+
+      return db.sequelize.query(
+        `
+        SELECT u.id, u.nickname, u.avatar,
+        COUNT(*) AS PostCount
+        FROM Users AS u
+        JOIN Posts AS p ON p.UserId = u.id
+        GROUP BY u.id
+        ORDER BY PostCount DESC
+        LIMIT ${limit} OFFSET ${offset}
+        `,
+        {
+          type: QueryTypes.SELECT
+        }
+      );
     },
     /**
      * 사용자 상세 조회

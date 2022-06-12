@@ -12,7 +12,12 @@ type CommentList {
 }
 
 type Query {
-  comments(offset: Int, limit: Int, order: String, postId: String): CommentList!
+  comments(
+    offset: Int
+    limit: Int!
+    order: String
+    postId: String
+  ): CommentList!
 }
 
 type Mutation {

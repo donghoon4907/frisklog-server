@@ -9,7 +9,7 @@ export default {
      * 댓글 검색
      *
      * @param {number?} args.offset 건너뛸 개수
-     * @param {number?} args.limit  검색결과 개수
+     * @param {number} args.limit  검색결과 개수
      * @param {string?} args.order  정렬조건
      * @param {number?} args.postId 게시물 ID
      */

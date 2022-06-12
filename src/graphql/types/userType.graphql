@@ -7,7 +7,7 @@ type User {
   Posts: [Post!]!
   # likes: [Like!]!
   # UserComments: [Comment!]!
-  # postCount: Int!
+  PostCount: Int
   token: String
   createdAt: String!
   updatedAt: String!
@@ -19,7 +19,9 @@ type UserList {
 }
 
 type Query {
-  users(offset: Int, limit: Int, order: String): UserList!
+  users(offset: Int, limit: Int!, order: String): UserList!
+
+  recommenders(offset: Int, limit: Int!): [User!]!
 
   user(id: String!): User!
 
