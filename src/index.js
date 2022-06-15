@@ -45,23 +45,27 @@ app.post("/api/upload", (req, res) => {
     return res.status(403).send("파일을 찾을 수 없습니다.");
   }
 
-  const fileName = files.file.name;
+  const filename = files.file.name;
 
-  const ext = fileName.split(".");
+  const splitFilename = filename.split(".");
 
-  if (ext.length != 2) {
+  if (splitFilename.length != 2) {
     return res.status(403).send("이미지 파일만 업로드 할 수 있습니다.");
   }
 
-  if (ext[1] !== "jpg" && ext[1] !== "png") {
+  const ext = splitFilename[1];
+
+  if (ext !== "jpg" && ext !== "png") {
     return res.status(403).send("이미지 파일이 jpg 또는 png 형식이 아닙니다.");
   }
 
-  files.file.mv(`${__dirname}/upload/${uuidv4()}.${ext[1]}`, err => {
+  const outputFilename = `${uuidv4()}.${ext}`;
+
+  files.file.mv(`${__dirname}/upload/${outputFilename}`, err => {
     if (err) {
       return res.status(500).send("업로드 중 서버에서 문제가 발생했습니다.");
     } else {
-      return res.json(fileName);
+      return res.json(outputFilename);
     }
   });
 });
