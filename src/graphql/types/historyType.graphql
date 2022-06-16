@@ -1,0 +1,10 @@
+type RecommendCategory {
+  category: String!
+  count: Int!
+  # ip: String!
+  createdAt: String!
+}
+
+type Query {
+  recommendCategories(offset: Int, limit: Int!): [RecommendCategory!]!
+}

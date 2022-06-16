@@ -4,7 +4,7 @@ import User from "./user";
 import Post from "./post";
 import Comment from "./comment";
 // import Category from "./category";
-// import History from "./history";
+import History from "./history";
 // import Notice from "./notice";
 
 const env = process.env.NODE_ENV || "development";
@@ -19,7 +19,7 @@ db.User = User(sequelize, Sequelize);
 db.Post = Post(sequelize, Sequelize);
 db.Comment = Comment(sequelize, Sequelize);
 // db.Category = Category(sequelize, Sequelize);
-// db.History = History(sequelize, Sequelize);
+db.History = History(sequelize, Sequelize);
 // db.Notice = Notice(sequelize, Sequelize);
 
 Object.keys(db).forEach(modelName => {

@@ -1,4 +1,5 @@
-import { frisklogGraphQLError } from "../../module/http";
+import moment from "moment";
+import { frisklogGraphQLError, getIp } from "../../module/http";
 import { POST_NOT_FOUND } from "../../config/message/post";
 import { WRONG_APPROACH } from "../../config/message";
 
@@ -7,15 +8,15 @@ export default {
     /**
      * 게시물 검색
      *
-     * @param {number?} args.offset 건너뛸 개수
-     * @param {number} args.limit 검색결과 개수
-     * @param {string?} args.order 정렬조건
-     * @param {string?} args.searchKeyword 검색어
-     * @param {string?} args.category 카테고리
-     * @param {number?} args.userId 사용자 ID
-     * @param {boolean?} args.isThereThumb 썸네일유무
+     * @param {number?}  args.offset 건너뛸 개수
+     * @param {number}   args.limit 검색결과 개수
+     * @param {string?}  args.order 정렬조건
+     * @param {string?}  args.searchKeyword 검색어
+     * @param {string?}  args.category 카테고리
+     * @param {string?}  args.userId 사용자 ID
+     * @deprecated {boolean?} args.isThereThumb 썸네일유무
      */
-    posts: async (_, args, { db }) => {
+    posts: async (_, args, { request, db }) => {
       const {
         offset = 0,
         limit,
@@ -23,23 +24,30 @@ export default {
         searchKeyword,
         category,
         userId,
-        isThereThumb
+        // isThereThumb,
+        isDev
       } = args;
 
       const where = {
-        [db.Sequelize.Op.or]: []
+        // [db.Sequelize.Op.or]: []
       };
 
+      // if (searchKeyword) {
+      //   ["content"].forEach(column => {
+      //     where[db.Sequelize.Op.or].push({
+      //       [column]: {
+      //         [db.Sequelize.Op.like]: `%${searchKeyword}%`
+      //       }
+      //     });
+      //   });
+      // } else {
+      //   delete where[db.Sequelize.Op.or];
+      // }
+
       if (searchKeyword) {
-        ["title", "description"].forEach(column => {
-          where[db.Sequelize.Op.or].push({
-            [column]: {
-              [db.Sequelize.Op.like]: `%${searchKeyword}%`
-            }
-          });
-        });
-      } else {
-        delete where[db.Sequelize.Op.or];
+        where["content"] = {
+          [db.Sequelize.Op.like]: `%${searchKeyword}%`
+        };
       }
 
       if (category) {
@@ -50,13 +58,13 @@ export default {
         where["UserId"] = userId;
       }
 
-      if (isThereThumb) {
-        where[db.Sequelize.Op.not] = {
-          thumbnail: null
-        };
-      }
+      // if (isThereThumb) {
+      //   where[db.Sequelize.Op.not] = {
+      //     thumbnail: null
+      //   };
+      // }
 
-      return db.Post.findAndCountAll({
+      const posts = db.Post.findAndCountAll({
         where,
         include: [
           {
@@ -80,6 +88,44 @@ export default {
         limit,
         offset
       });
+
+      // 검색 시 history 추가
+      if (category || searchKeyword) {
+        const param = {
+          ip: isDev ? "graphql-yoga" : getIp(request)
+        };
+
+        if (searchKeyword) {
+          param["searchKeyword"] = searchKeyword;
+        }
+
+        if (category) {
+          param["category"] = category;
+        }
+
+        const from = moment();
+        from.set({ hour: 0, minute: 0, second: 0 });
+
+        const to = moment();
+        to.set({ hour: 23, minute: 59, second: 59 });
+
+        // 검색 이력 확인
+        const history = await db.History.findOne({
+          where: {
+            ...param,
+            createdAt: {
+              [db.Sequelize.Op.lt]: to,
+              [db.Sequelize.Op.gt]: from
+            }
+          }
+        });
+
+        if (history === null) {
+          await db.History.create(param);
+        }
+      }
+
+      return posts;
     },
     /**
      * 게시물 상세 조회
@@ -126,24 +172,31 @@ export default {
     /**
      * 게시물 등록
      *
-     * @param {string?} args.title 제목
-     * @param {string?} args.description 소개
+     * @deprecated {string?} args.title 제목
+     * @deprecated {string?} args.description 소개
      * @param {string?} args.content 내용
      * @param {string?} args.category 카테고리명
-     * @param {string?} args.thumbnail 썸네일 경로
+     * @deprecated {string?} args.thumbnail 썸네일 경로
      * @param {boolean?} args.isDev 개발 여부
      */
     addPost: async (_, args, { request, isAuthenticated, db }) => {
-      const { title, description, content, category, thumbnail, isDev } = args;
+      const {
+        // title,
+        // description,
+        content,
+        category,
+        // thumbnail,
+        isDev
+      } = args;
 
       const me = await isAuthenticated({ request }, isDev);
 
       await db.Post.create({
-        title,
-        description,
+        // title,
+        // description,
         content,
         category,
-        thumbnail,
+        // thumbnail,
         UserId: me.id
       });
 
@@ -153,21 +206,21 @@ export default {
      * 게시물 수정
      *
      * @param {string?} args.id 게시물 ID
-     * @param {string?} args.title 제목
-     * @param {string?} args.description 소개
+     * @deprecated {string?} args.title 제목
+     * @deprecated {string?} args.description 소개
      * @param {string?} args.content 내용
      * @param {string?} args.category 카테고리명
-     * @param {string?} args.thumbnail 썸네일 경로
+     * @deprecated {string?} args.thumbnail 썸네일 경로
      * @param {boolean?} args.isDev 개발 여부
      */
     updatePost: async (_, args, { request, isAuthenticated, db }) => {
       const {
         id,
-        title,
-        description,
+        // title,
+        // description,
         content,
         category,
-        thumbnail,
+        // thumbnail,
         isDev
       } = args;
 
@@ -186,7 +239,13 @@ export default {
         });
       }
 
-      await post.update({ title, description, content, category, thumbnail });
+      await post.update({
+        // title,
+        // description,
+        content,
+        category
+        // thumbnail
+      });
 
       return true;
     },

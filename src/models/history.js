@@ -2,10 +2,20 @@ export default (sequelize, DataTypes) => {
   const History = sequelize.define(
     "History",
     {
+      category: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: "카테고리"
+      },
+      searchKeyword: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: "검색어"
+      },
       ip: {
         type: DataTypes.STRING,
         allowNull: false,
-        comment: "조회 ip 주소"
+        comment: "ip"
       }
     },
     {
@@ -15,7 +25,12 @@ export default (sequelize, DataTypes) => {
     }
   );
 
-  History.associate = db => {};
+  History.associate = db => {
+    // db.History.belongsTo(db.User, {
+    //   foreignKey: "UserId",
+    //   allowNull: true
+    // });
+  };
 
   return History;
 };

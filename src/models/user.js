@@ -15,6 +15,11 @@ export default (sequelize, DataTypes) => {
         unique: true,
         comment: "이메일"
       },
+      // password: {
+      //   type: DataTypes.STRING,
+      //   allowNull: false,
+      //   comment: "암호"
+      // },
       isMaster: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
@@ -59,6 +64,7 @@ export default (sequelize, DataTypes) => {
     db.User.hasMany(db.Post, { as: "Posts" });
     db.User.hasMany(db.Comment, { as: "UserComments" });
     db.User.belongsToMany(db.Post, { through: "Likes", as: "LikedPost" });
+    // db.User.hasMany(db.History, { as: "Histories" });
   };
 
   return User;
