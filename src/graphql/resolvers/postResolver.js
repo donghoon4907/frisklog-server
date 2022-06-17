@@ -1,5 +1,5 @@
 import moment from "moment";
-import { frisklogGraphQLError, getIp } from "../../module/http";
+import { frisklogGraphQLError, getIpClient } from "../../module/http";
 import { POST_NOT_FOUND } from "../../config/message/post";
 import { WRONG_APPROACH } from "../../config/message";
 
@@ -16,16 +16,16 @@ export default {
      * @param {string?}  args.userId 사용자 ID
      * @deprecated {boolean?} args.isThereThumb 썸네일유무
      */
-    posts: async (_, args, { request, db }) => {
+    posts: async (_, args, { db }) => {
       const {
         offset = 0,
         limit,
         order = "createdAt_DESC",
         searchKeyword,
         category,
-        userId,
+        userId
         // isThereThumb,
-        isDev
+        // isDev
       } = args;
 
       const where = {
@@ -91,9 +91,9 @@ export default {
 
       // 검색 시 history 추가
       if (category || searchKeyword) {
-        const param = {
-          ip: isDev ? "graphql-yoga" : getIp(request)
-        };
+        const param = {};
+
+        param.ip = await getIpClient();
 
         if (searchKeyword) {
           param["searchKeyword"] = searchKeyword;

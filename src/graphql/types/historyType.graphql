@@ -1,8 +1,6 @@
 type RecommendCategory {
   category: String!
-  count: Int!
-  # ip: String!
-  createdAt: String!
+  searchCount: Int!
 }
 
 type Query {

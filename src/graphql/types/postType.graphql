@@ -22,13 +22,14 @@ type PostList {
 
 type Query {
   posts(
+    # isDev: Boolean
+    # isThereThumb: Boolean
     offset: Int
     limit: Int!
     order: String
     searchKeyword: String
     category: String
     userId: String
-    isDev: Boolean # isThereThumb: Boolean
   ): PostList!
 
   post(id: String!): Post!

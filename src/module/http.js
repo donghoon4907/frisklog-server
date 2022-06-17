@@ -1,4 +1,5 @@
 import { GraphQLYogaError } from "@graphql-yoga/node";
+import axios from "axios";
 
 export const error = ({ message, status }) => {
   throw new Error(
@@ -13,16 +14,12 @@ export const frisklogGraphQLError = (message, extensions) => {
   throw new GraphQLYogaError(message, extensions);
 };
 
-export const getIp = req => {
-  const ip =
-    req.headers["x-forwarded-for"] ||
-    req.connection.remoteAddress ||
-    req.socket.remoteAddress ||
-    req.connection.socket.remoteAddress;
+export const getIpClient = async () => {
+  try {
+    const { data } = await axios.get("https://api.ipify.org?format=json");
 
-  if (!ip) {
-    throw new Error("ip not found");
+    return data.ip;
+  } catch (e) {
+    throw new Error(e);
   }
-
-  return ip;
 };
