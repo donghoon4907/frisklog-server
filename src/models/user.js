@@ -15,11 +15,11 @@ export default (sequelize, DataTypes) => {
         unique: true,
         comment: "이메일"
       },
-      // password: {
-      //   type: DataTypes.STRING,
-      //   allowNull: false,
-      //   comment: "암호"
-      // },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        comment: "암호"
+      },
       isMaster: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

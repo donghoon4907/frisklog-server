@@ -29,9 +29,19 @@ type Query {
 }
 
 type Mutation {
-  logIn(email: String!): User!
+  logIn(email: String!, password: String!): User!
 
-  addUser(email: String!, nickname: String!, avatar: String): Boolean!
+  addUser(
+    email: String!
+    password: String!
+    nickname: String!
+    avatar: String
+  ): Boolean!
 
-  updateUser(nickname: String, avatar: String, isDev: Boolean): Boolean!
+  updateUser(
+    password: String
+    nickname: String
+    avatar: String
+    isDev: Boolean
+  ): Boolean!
 }

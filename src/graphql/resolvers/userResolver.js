@@ -1,10 +1,12 @@
 import { QueryTypes } from "sequelize";
+import bcrypt from "bcrypt";
 import { frisklogGraphQLError } from "../../module/http";
 import { generateToken } from "../../module/token";
 import {
   USER_NOT_FOUND,
   USER_USING_EMAIL,
-  USER_USING_NICKNAME
+  USER_USING_NICKNAME,
+  USER__MISMATCH__PASSWORD
 } from "../../config/message/user";
 
 export default {
@@ -93,15 +95,26 @@ export default {
     /**
      * 로그인
      *
-     * @param {string} args.email 이메일
+     * @param {string} args.email    이메일
+     * @param {string} args.password 암호
      */
     logIn: async (_, args, { db }) => {
-      const { email } = args;
+      const { email, password } = args;
 
-      const user = await db.User.findOne({ where: { email } });
+      const user = await db.User.findOne({
+        where: { email }
+      });
 
       if (user === null) {
         frisklogGraphQLError(USER_NOT_FOUND, {
+          status: 403
+        });
+      }
+
+      const auth = await bcrypt.compare(password, user.password);
+
+      if (!auth) {
+        frisklogGraphQLError(USER__MISMATCH__PASSWORD, {
           status: 403
         });
       }
@@ -113,12 +126,13 @@ export default {
     /**
      * 사용자 등록
      *
-     * @param {string} args.email 이메일
-     * @param {string} args.nickname 별명
-     * @param {string?} args.avatar 썸네일 경로
+     * @param {string}  args.email    이메일
+     * @param {string}  args.nickname 별명
+     * @param {string?} args.avatar   썸네일 경로
+     * @param {string}  args.password 암호
      */
     addUser: async (_, args, { db }) => {
-      const { email, nickname, avatar } = args;
+      const { email, password, nickname, avatar } = args;
 
       const user = await db.User.findOne({
         where: {
@@ -134,8 +148,11 @@ export default {
         }
       }
 
+      const hashedPw = await bcrypt.hash(password, 12);
+
       await db.User.create({
         email,
+        password: hashedPw,
         nickname,
         avatar
       });
@@ -145,14 +162,17 @@ export default {
     /**
      * 내 정보 수정
      *
-     * @param {string?} args.nickname 별명
-     * @param {string?} args.avatar 프로필사진 경로
-     * @param {boolean?} args.isDev 개발 여부
+     * @param {string}   args.password 암호
+     * @param {string?}  args.nickname 별명
+     * @param {string?}  args.avatar   프로필사진 경로
+     * @param {boolean?} args.isDev    개발 여부
      */
     updateUser: async (_, args, { request, isAuthenticated, db }) => {
-      const { nickname, avatar, isDev } = args;
+      const { password, nickname, avatar, isDev } = args;
 
       const me = await isAuthenticated({ request }, isDev);
+
+      const param = {};
 
       if (nickname) {
         // 수정할 별명이 현재 별명과 다른 경우
@@ -166,10 +186,22 @@ export default {
               status: 403
             });
           }
+
+          param["nickname"] = nickname;
         }
       }
 
-      await me.update({ nickname, avatar });
+      if (avatar) {
+        param["avatar"] = avatar;
+      }
+
+      if (password) {
+        const hashedPw = await bcrypt.hash(password, 12);
+
+        param["password"] = hashedPw;
+      }
+
+      await me.update(param);
 
       return true;
     }

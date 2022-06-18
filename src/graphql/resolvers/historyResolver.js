@@ -1,4 +1,4 @@
-import { QueryTypes, literal } from "sequelize";
+import { literal } from "sequelize";
 
 export default {
   Query: {
@@ -11,7 +11,7 @@ export default {
     recommendCategories: async (_, args, { db }) => {
       const { offset = 0, limit } = args;
 
-      // db.sequelize.query(
+      // return db.sequelize.query(
       //   `
       //   SELECT category, COUNT(*) as count
       //   FROM Histories
@@ -27,10 +27,10 @@ export default {
       return db.History.findAll({
         attributes: [
           "category",
-          [db.Sequelize.fn("COUNT", "*"), "searchCount"]
+          [db.Sequelize.fn("COUNT", "category"), "searchCount"]
         ],
         group: "category",
-        having: literal(`COUNT(*) > 0`),
+        having: literal(`COUNT(category) > 0`),
         order: literal(`searchCount DESC`),
         limit,
         offset,
