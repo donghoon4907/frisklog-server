@@ -61,7 +61,7 @@ app.post("/api/upload", (req, res) => {
 
   const outputFilename = `${uuidv4()}.${ext}`;
 
-  files.file.mv(`${__dirname}/upload/${outputFilename}`, err => {
+  files.file.mv(`src/upload/${outputFilename}`, err => {
     if (err) {
       return res.status(500).send("업로드 중 서버에서 문제가 발생했습니다.");
     } else {
