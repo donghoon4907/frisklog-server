@@ -6,7 +6,10 @@ export const mysqlConfig = {
     host: process.env.HOST,
     dialect: process.env.DB_TYPE,
     operatorsAliases: 0,
-    timezone: "+09:00"
+    timezone: "+09:00",
+    dialectOptions: {
+      dateStrings: true
+    }
   },
   test: {
     username: process.env.DB_USERNAME,
@@ -15,7 +18,10 @@ export const mysqlConfig = {
     host: process.env.HOST,
     dialect: process.env.DB_TYPE,
     operatorsAliases: 0,
-    timezone: "+09:00"
+    timezone: "+09:00",
+    dialectOptions: {
+      dateStrings: true
+    }
   },
   production: {
     username: process.env.DB_USERNAME,
@@ -23,6 +29,10 @@ export const mysqlConfig = {
     database: process.env.DB,
     host: process.env.HOST,
     dialect: process.env.DB_TYPE,
-    operatorsAliases: 0
+    operatorsAliases: 0,
+    timezone: "+09:00",
+    dialectOptions: {
+      dateStrings: true
+    }
   }
 };
