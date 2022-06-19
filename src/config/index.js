@@ -23,7 +23,6 @@ export const mysqlConfig = {
     database: process.env.DB,
     host: process.env.HOST,
     dialect: process.env.DB_TYPE,
-    operatorsAliases: 0,
-    timezone: "+09:00"
+    operatorsAliases: 0
   }
 };
