@@ -30,6 +30,7 @@ type Query {
     searchKeyword: String
     category: String
     userId: String
+    isLike: Boolean
   ): PostList!
 
   post(id: String!): Post!

@@ -15,6 +15,7 @@ export default {
      * @param {string?}  args.category 카테고리
      * @param {string?}  args.userId 사용자 ID
      * @deprecated {boolean?} args.isThereThumb 썸네일유무
+     * @param {string?}  args.isLike 내가 좋아요한 포스트 여부(마이페이지에서만 사용, userId 필요)
      */
     posts: async (_, args, { db }) => {
       const {
@@ -23,13 +24,21 @@ export default {
         order = "createdAt_DESC",
         searchKeyword,
         category,
-        userId
+        userId,
+        isLike
         // isThereThumb,
         // isDev
       } = args;
-
-      const where = {
-        // [db.Sequelize.Op.or]: []
+      // post's condition
+      const where = {};
+      // post's user
+      const user = {
+        model: db.User
+      };
+      // post;s likers
+      const likers = {
+        model: db.User,
+        as: "Likers"
       };
 
       // if (searchKeyword) {
@@ -58,6 +67,14 @@ export default {
         where["UserId"] = userId;
       }
 
+      if (isLike) {
+        delete where["UserId"];
+
+        likers["where"] = {
+          id: userId
+        };
+      }
+
       // if (isThereThumb) {
       //   where[db.Sequelize.Op.not] = {
       //     thumbnail: null
@@ -67,13 +84,8 @@ export default {
       const posts = db.Post.findAndCountAll({
         where,
         include: [
-          {
-            model: db.User
-          },
-          {
-            model: db.User,
-            as: "Likers"
-          }
+          user,
+          likers
           // {
           //   model: db.Comment,
           //   as: "PostComments",
