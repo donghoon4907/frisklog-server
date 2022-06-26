@@ -56,13 +56,13 @@ export default {
         });
       }
 
-      await db.Comment.create({
+      const comment = await db.Comment.create({
         content,
         UserId: me.id,
         PostId: postId
       });
 
-      return true;
+      return comment;
     },
     /**
      * 댓글 수정

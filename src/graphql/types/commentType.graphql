@@ -1,7 +1,7 @@
 type Comment {
   id: ID!
   content: String!
-  User: User!
+  User: User
   createdAt: String!
   updatedAt: String!
 }
@@ -21,7 +21,7 @@ type Query {
 }
 
 type Mutation {
-  addComment(postId: String!, content: String!, isDev: Boolean): Boolean!
+  addComment(postId: String!, content: String!, isDev: Boolean): Comment!
 
   updateComment(id: String!, content: String!, isDev: Boolean): Boolean!
 
