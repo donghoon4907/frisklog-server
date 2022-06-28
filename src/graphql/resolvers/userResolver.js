@@ -124,6 +124,27 @@ export default {
       return user;
     },
     /**
+     * 구글 로그인
+     *
+     * @param {string}  args.email    이메일
+     */
+    logInWithGoogle: async (_, args, { db }) => {
+      const { email, nickname } = args;
+
+      const [user] = await db.User.findOrCreate({
+        where: {
+          email
+        },
+        defaults: {
+          nickname
+        }
+      });
+
+      user["token"] = generateToken(user);
+
+      return user;
+    },
+    /**
      * 사용자 등록
      *
      * @param {string}  args.email    이메일

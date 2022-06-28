@@ -17,7 +17,7 @@ export default (sequelize, DataTypes) => {
       },
       password: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         comment: "암호"
       },
       isMaster: {

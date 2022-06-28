@@ -31,6 +31,8 @@ type Query {
 type Mutation {
   logIn(email: String!, password: String!): User!
 
+  logInWithGoogle(email: String!, nickname: String!): User!
+
   addUser(
     email: String!
     password: String!
