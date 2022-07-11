@@ -40,10 +40,5 @@ type Mutation {
     avatar: String
   ): Boolean!
 
-  updateUser(
-    password: String
-    nickname: String
-    avatar: String
-    isDev: Boolean
-  ): Boolean!
+  updateUser(password: String, nickname: String, avatar: String): User!
 }

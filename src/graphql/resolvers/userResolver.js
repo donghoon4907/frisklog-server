@@ -1,13 +1,14 @@
 import { QueryTypes } from "sequelize";
 import bcrypt from "bcrypt";
 import { frisklogGraphQLError } from "../../module/http";
-import { generateToken } from "../../module/token";
+import { generateToken, getToken, refreshToken } from "../../module/token";
 import {
   USER_NOT_FOUND,
   USER_USING_EMAIL,
   USER_USING_NICKNAME,
   USER__MISMATCH__PASSWORD
 } from "../../config/message/user";
+import { WRONG_AUTH } from "../../config";
 
 export default {
   Query: {
@@ -186,12 +187,12 @@ export default {
      * @param {string}   args.password 암호
      * @param {string?}  args.nickname 별명
      * @param {string?}  args.avatar   프로필사진 경로
-     * @param {boolean?} args.isDev    개발 여부
+     * @deprecated {boolean?} args.isDev    개발 여부
      */
     updateUser: async (_, args, { request, isAuthenticated, db }) => {
-      const { password, nickname, avatar, isDev } = args;
+      const { password, nickname, avatar } = args;
 
-      const me = await isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request });
 
       const param = {};
 
@@ -222,9 +223,21 @@ export default {
         param["password"] = hashedPw;
       }
 
-      await me.update(param);
+      const updatedUser = await me.update(param);
 
-      return true;
+      const prevToken = getToken(request);
+
+      const nextToken = refreshToken(prevToken, updatedUser);
+
+      if (nextToken === null) {
+        frisklogGraphQLError(WRONG_AUTH, {
+          status: 401
+        });
+      }
+
+      updatedUser["token"] = nextToken;
+
+      return updatedUser;
     }
   }
 };

@@ -1,5 +1,5 @@
 import { frisklogGraphQLError } from "./http";
-import { decodeToken } from "../module/token";
+import { decodeToken, getToken } from "../module/token";
 import db from "../models";
 import { WRONG_AUTH, EXPIRED_AUTH } from "../config/message";
 
@@ -15,11 +15,9 @@ export const isAuthenticated = async ({ request }, isDev) => {
   if (isDev) {
     id = 1;
   } else {
-    const authorization = request.headers.get("authorization");
+    const token = getToken(request);
 
     try {
-      const token = authorization.split(" ")[1];
-
       id = decodeToken(token).id;
 
       if (id === null) {
