@@ -2,7 +2,7 @@
 ssh ubuntu@172.31.41.190 <<EOF
     cd ~/frisklog-server
     git pull
-    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash . ~/.nvm/nvm.sh
+    curl -sL https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.0/install.sh -o install_nvm.sh | bash install_nvm.sh
     nvm install --lts
     npm install
     npm install -g pm2
