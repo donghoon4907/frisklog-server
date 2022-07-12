@@ -34,8 +34,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      # - name: Access to a server
-      #   run: cd frisklog-server
+      - name: Access to a server
+        run: cd frisklog-server
 
       - name: Stop server
         run: npm run pre-build
