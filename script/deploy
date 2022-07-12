@@ -1,9 +1,11 @@
 #!/bin/sh
 ssh ubuntu@172.31.41.190 <<EOF
+    sudo su
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash
     source ~/.bash_profile
     nvm install 16.16.0
     cd frisklog-server
+    git pull
     npm install
     npm install -g pm2
     npm run build
