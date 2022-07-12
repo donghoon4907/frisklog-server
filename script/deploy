@@ -1,7 +1,7 @@
 #!/bin/sh
 ssh ubuntu@172.31.41.190 <<EOF
     sudo su
-    apt-get upgrade
+    apt-get upgrade -y
     nvm install --lts
     exit
 EOF
