@@ -8,6 +8,5 @@ ssh ubuntu@172.31.41.190 <<EOF
     sudo npm install
     npm install -g pm2
     sudo npm run build
-    pm2 restart ecosystem.config.js
     exit
 EOF
