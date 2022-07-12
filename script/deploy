@@ -1,9 +1,9 @@
 #!/bin/sh
 ssh ubuntu@172.31.41.190 <<EOF
     sudo apt-get update
-    wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh | bash
+    wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh | bash . ~/.nvm/nvm.sh
     nvm ls-remote
-    nvm install v16.16.0
+    nvm install 16.16.0
     cd ~/frisklog-server
     git pull
     npm install
