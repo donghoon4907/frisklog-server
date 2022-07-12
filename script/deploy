@@ -2,6 +2,10 @@
 ssh ubuntu@172.31.41.190 <<EOF
     sudo su
     apt-get upgrade -y
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+    node -v
+    npm -v
     nvm install --lts
+    node -v
     exit
 EOF
