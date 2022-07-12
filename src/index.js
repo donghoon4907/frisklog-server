@@ -70,7 +70,7 @@ app.post("/api/upload", (req, res) => {
   });
 });
 
-// test
+// jenkins test를 위한 주석
 app.listen(process.env.PORT, () => {
   console.log("Running a GraphQL API server");
 });
