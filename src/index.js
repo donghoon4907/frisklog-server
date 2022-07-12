@@ -70,6 +70,7 @@ app.post("/api/upload", (req, res) => {
   });
 });
 
+// test
 app.listen(process.env.PORT, () => {
   console.log("Running a GraphQL API server");
 });
