@@ -1,6 +1,7 @@
 #!/bin/sh
 ssh ubuntu@172.31.41.190 <<EOF
     sudo curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash
+    source ~/.bash_profile
     nvm ls
     exit
 EOF
