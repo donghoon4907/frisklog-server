@@ -1,4 +1,4 @@
-import moment from "moment";
+import { withTimezone } from "../module/moment";
 
 export default (sequelize, DataTypes) => {
   const Comment = sequelize.define(
@@ -12,17 +12,13 @@ export default (sequelize, DataTypes) => {
       createdAt: {
         type: DataTypes.DATE,
         get() {
-          return moment(this.getDataValue("createdAt")).format(
-            "YYYY-MM-DD HH:mm:ss"
-          );
+          return withTimezone(this.getDataValue("createdAt"));
         }
       },
       updatedAt: {
         type: DataTypes.DATE,
         get() {
-          return moment(this.getDataValue("updatedAt")).format(
-            "YYYY-MM-DD HH:mm:ss"
-          );
+          return withTimezone(this.getDataValue("updatedAt"));
         }
       }
     },
