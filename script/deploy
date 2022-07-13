@@ -1,6 +1,0 @@
-#!/bin/sh
-ssh ubuntu@13.125.246.82 <<EOF
-    cd ~/frisklog-server
-    git pull origin main
-    exit
-EOF
