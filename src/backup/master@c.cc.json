@@ -1,0 +1,13 @@
+{
+	"nickname": "_MASTER_",
+	"avatar": "99e9f1f0-52d2-4a77-90a5-ef2eda8201b3.jpg",
+	"createdAt": "2022-07-08 01:05:16",
+	"posts": [
+		{
+			"id": 2,
+			"content": "![image](http://localhost:4000/66866433-027e-45cf-a9f0-e7a013484a1c.png)\n\n# Dummy Title\n> Dummy description",
+			"createdAt": "2022-07-08 01:07:22",
+			"updatedAt": "2022-07-08 01:07:22"
+		}
+	]
+}

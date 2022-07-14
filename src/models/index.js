@@ -6,6 +6,7 @@ import Comment from "./comment";
 // import Category from "./category";
 import History from "./history";
 // import Notice from "./notice";
+import BackupQueue from "./backup_queue";
 
 const env = process.env.NODE_ENV || "development";
 
@@ -21,6 +22,7 @@ db.Comment = Comment(sequelize, Sequelize);
 // db.Category = Category(sequelize, Sequelize);
 db.History = History(sequelize, Sequelize);
 // db.Notice = Notice(sequelize, Sequelize);
+db.BackupQueue = BackupQueue(sequelize, Sequelize);
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {

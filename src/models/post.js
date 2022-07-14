@@ -35,6 +35,12 @@ export default (sequelize, DataTypes) => {
         allowNull: true,
         comment: "카테고리명"
       },
+      isBackup: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        comment: "백업데이터유무",
+        defaultValue: "N"
+      },
       createdAt: {
         type: DataTypes.DATE,
         get() {

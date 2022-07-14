@@ -120,4 +120,8 @@ build
 # upload folder
 src/upload/*
 
+# backup folder
+
+src/backup/*
+
 # End of https://www.toptal.com/developers/gitignore/api/node

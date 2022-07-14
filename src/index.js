@@ -4,10 +4,12 @@ import morgan from "morgan";
 import cors from "cors";
 import fileUpload from "express-fileupload";
 import { v4 as uuidv4 } from "uuid";
+
 import "./module/env";
 import { schema } from "./graphql";
 import db from "./models";
 import { isAuthenticated } from "./module/middleware";
+import "./module/schedules/backupPostJob";
 
 const graphQLServer = createServer({
   schema,
