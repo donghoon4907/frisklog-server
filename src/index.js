@@ -9,7 +9,7 @@ import "./module/env";
 import { schema } from "./graphql";
 import db from "./models";
 import { isAuthenticated } from "./module/middleware";
-import "./module/schedules/backupPostJob";
+// import "./module/schedules/backupPostJob";
 
 const graphQLServer = createServer({
   schema,

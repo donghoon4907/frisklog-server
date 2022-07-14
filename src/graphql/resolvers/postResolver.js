@@ -1,7 +1,15 @@
 import moment from "moment";
+
 import { frisklogGraphQLError, getIpClient } from "../../module/http";
-import { POST_NOT_FOUND } from "../../config/message/post";
+import {
+  POST_NOT_FOUND,
+  POST_CREATE_ERROR,
+  POST_UPDATE_ERROR,
+  POST_DESTROY_ERROR,
+  POST_BACKUP_ERROR
+} from "../../config/message/post";
 import { WRONG_APPROACH } from "../../config/message";
+import { createPost, updatePost } from "../../module/backup";
 
 export default {
   Query: {
@@ -192,25 +200,32 @@ export default {
      * @param {boolean?} args.isDev 개발 여부
      */
     addPost: async (_, args, { request, isAuthenticated, db }) => {
-      const {
-        // title,
-        // description,
-        content,
-        category,
-        // thumbnail,
-        isDev
-      } = args;
+      const { content, category, isDev } = args;
 
       const me = await isAuthenticated({ request }, isDev);
 
-      await db.Post.create({
-        // title,
-        // description,
+      const post = await db.Post.create({
         content,
         category,
-        // thumbnail,
         UserId: me.id
       });
+
+      if (post === null) {
+        frisklogGraphQLError(POST_CREATE_ERROR, {
+          status: 403
+        });
+      }
+
+      const { UserId, ...meta } = post.toJSON();
+
+      // 백업작업 추가
+      const isSuccessBackup = createPost(me.email, meta);
+
+      if (!isSuccessBackup) {
+        frisklogGraphQLError(POST_BACKUP_ERROR, {
+          status: 403
+        });
+      }
 
       return true;
     },
@@ -226,15 +241,7 @@ export default {
      * @param {boolean?} args.isDev 개발 여부
      */
     updatePost: async (_, args, { request, isAuthenticated, db }) => {
-      const {
-        id,
-        // title,
-        // description,
-        content,
-        category,
-        // thumbnail,
-        isDev
-      } = args;
+      const { id, content, category, isDev } = args;
 
       const me = await isAuthenticated({ request }, isDev);
 
@@ -251,13 +258,27 @@ export default {
         });
       }
 
-      await post.update({
-        // title,
-        // description,
+      const updatedPost = await post.update({
         content,
         category
-        // thumbnail
       });
+
+      if (updatedPost === null) {
+        frisklogGraphQLError(POST_UPDATE_ERROR, {
+          status: 403
+        });
+      }
+
+      const { UserId, ...meta } = updatedPost.toJSON();
+
+      // 백업작업 추가
+      const isSuccessBackup = updatePost(me.email, meta);
+
+      if (!isSuccessBackup) {
+        frisklogGraphQLError(POST_BACKUP_ERROR, {
+          status: 403
+        });
+      }
 
       return true;
     },
@@ -285,7 +306,24 @@ export default {
         });
       }
 
-      await post.destroy();
+      const deletedPost = await post.destroy();
+
+      if (deletedPost === null) {
+        frisklogGraphQLError(POST_DESTROY_ERROR, {
+          status: 403
+        });
+      }
+
+      const { UserId, ...meta } = deletedPost.toJSON();
+
+      // 백업작업 추가
+      const isSuccessBackup = updatePost(me.email, meta);
+
+      if (!isSuccessBackup) {
+        frisklogGraphQLError(POST_BACKUP_ERROR, {
+          status: 403
+        });
+      }
 
       return true;
     },
