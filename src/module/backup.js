@@ -25,7 +25,10 @@ const writeBackupFile = (filename, data) => {
   try {
     fs.writeFileSync(
       `${BACKUP_PATH}/${filename}.json`,
-      JSON.stringify(data, null, "\t")
+      JSON.stringify(
+        data
+        // , null, "\t"
+      )
     );
 
     result = true;
@@ -34,6 +37,14 @@ const writeBackupFile = (filename, data) => {
   }
 
   return result;
+};
+
+export const hasPost = (email, id) => {
+  let backupData = readBackupFile(email);
+
+  const hasPost = backupData.posts.findIndex(post => post.id === id);
+
+  return hasPost !== -1;
 };
 
 export const createPost = (email, post) => {

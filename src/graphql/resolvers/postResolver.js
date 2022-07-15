@@ -9,7 +9,7 @@ import {
   POST_BACKUP_ERROR
 } from "../../config/message/post";
 import { WRONG_APPROACH } from "../../config/message";
-import { createPost, updatePost } from "../../module/backup";
+// import { createPost, updatePost } from "../../module/backup";
 
 export default {
   Query: {
@@ -217,17 +217,16 @@ export default {
           status: 403
         });
       }
-
-      const { UserId, ...meta } = post.toJSON();
-
       // 백업작업 추가
-      const isSuccessBackup = createPost(me.email, meta);
+      // const { UserId, ...meta } = post.toJSON();
 
-      if (!isSuccessBackup) {
-        frisklogGraphQLError(POST_BACKUP_ERROR, {
-          status: 403
-        });
-      }
+      // const isSuccessBackup = createPost(me.email, meta);
+
+      // if (!isSuccessBackup) {
+      //   frisklogGraphQLError(POST_BACKUP_ERROR, {
+      //     status: 403
+      //   });
+      // }
 
       return true;
     },
@@ -271,16 +270,16 @@ export default {
         });
       }
 
-      const { UserId, ...meta } = updatedPost.toJSON();
-
       // 백업작업 추가
-      const isSuccessBackup = updatePost(me.email, meta);
+      // const { UserId, ...meta } = updatedPost.toJSON();
 
-      if (!isSuccessBackup) {
-        frisklogGraphQLError(POST_BACKUP_ERROR, {
-          status: 403
-        });
-      }
+      // const isSuccessBackup = updatePost(me.email, meta);
+
+      // if (!isSuccessBackup) {
+      //   frisklogGraphQLError(POST_BACKUP_ERROR, {
+      //     status: 403
+      //   });
+      // }
 
       return true;
     },
@@ -316,16 +315,16 @@ export default {
         });
       }
 
-      const { UserId, ...meta } = deletedPost.toJSON();
-
       // 백업작업 추가
-      const isSuccessBackup = updatePost(me.email, meta);
+      // const { UserId, ...meta } = deletedPost.toJSON();
 
-      if (!isSuccessBackup) {
-        frisklogGraphQLError(POST_BACKUP_ERROR, {
-          status: 403
-        });
-      }
+      // const isSuccessBackup = updatePost(me.email, meta);
+
+      // if (!isSuccessBackup) {
+      //   frisklogGraphQLError(POST_BACKUP_ERROR, {
+      //     status: 403
+      //   });
+      // }
 
       return true;
     },

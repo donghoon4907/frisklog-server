@@ -6,9 +6,8 @@ import db from "../models";
 
 const BACKUP_PATH = path.join(__dirname, "../backup");
 
-// Execute restore post(file => DB)
 (() => {
-  console.log(`Execute restorePostJob Start at ${new Date()}`);
+  console.log(`Execute restorePostJob(file => DB) Start at ${new Date()}`);
 
   try {
     // 백업 폴더 하위 파일명 목록
@@ -31,11 +30,18 @@ const BACKUP_PATH = path.join(__dirname, "../backup");
 
       const { posts } = JSON.parse(json);
 
-      posts.forEach(async ({ id, ...meta }) => {
-        await db.Post.create({ ...meta, UserId: user.id });
+      posts.forEach(
+        async ({ id, createdAt, updatedAt, deletedAt, ...meta }) => {
+          // 삭제된 데이터 제외
+          if (typeof deletedAt === "string") {
+            return;
+          }
 
-        console.log(`${file} - post id: ${id} created.`);
-      });
+          await db.Post.create({ ...meta, UserId: user.id, hasBackup: "Y" });
+
+          console.log(`${file} - post id: ${id} created.`);
+        }
+      );
     });
   } catch (e) {
     console.log(e);
