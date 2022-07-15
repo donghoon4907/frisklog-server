@@ -15,6 +15,11 @@ type Post {
   updatedAt: String!
 }
 
+type RecommendCategory {
+  category: String!
+  searchCount: Int!
+}
+
 type PostList {
   rows: [Post!]!
   count: Int!
@@ -34,6 +39,8 @@ type Query {
   ): PostList!
 
   post(id: String!): Post!
+
+  recommendCategories(offset: Int, limit: Int!): [RecommendCategory!]!
 }
 
 type Mutation {

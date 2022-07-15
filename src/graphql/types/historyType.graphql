@@ -1,8 +1,0 @@
-type RecommendCategory {
-  category: String!
-  searchCount: Int!
-}
-
-type Query {
-  recommendCategories(offset: Int, limit: Int!): [RecommendCategory!]!
-}

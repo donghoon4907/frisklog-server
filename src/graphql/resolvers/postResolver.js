@@ -1,12 +1,12 @@
 import moment from "moment";
+import { literal } from "sequelize";
 
 import { frisklogGraphQLError, getIpClient } from "../../module/http";
 import {
   POST_NOT_FOUND,
   POST_CREATE_ERROR,
   POST_UPDATE_ERROR,
-  POST_DESTROY_ERROR,
-  POST_BACKUP_ERROR
+  POST_DESTROY_ERROR
 } from "../../config/message/post";
 import { WRONG_APPROACH } from "../../config/message";
 // import { createPost, updatePost } from "../../module/backup";
@@ -187,6 +187,28 @@ export default {
       // to-be 조회수 증가
 
       return post;
+    },
+    /**
+     * 추천 카테고리 검색
+     *
+     * @param {number?} args.offset 건너뛸 개수
+     * @param {number}  args.limit  검색결과 개수
+     */
+    recommendCategories: async (_, args, { db }) => {
+      const { offset = 0, limit } = args;
+
+      return db.Post.findAll({
+        attributes: [
+          "category",
+          [db.Sequelize.fn("COUNT", "*"), "searchCount"]
+        ],
+        group: "category",
+        having: literal(`COUNT(*) > 0`),
+        order: literal(`searchCount DESC`),
+        limit,
+        offset,
+        raw: true
+      });
     }
   },
   Mutation: {

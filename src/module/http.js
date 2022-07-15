@@ -15,11 +15,15 @@ export const frisklogGraphQLError = (message, extensions) => {
 };
 
 export const getIpClient = async () => {
+  let result;
+
   try {
     const { data } = await axios.get("https://api.ipify.org?format=json");
 
-    return data.ip;
-  } catch (e) {
-    throw new Error(e);
+    result = data.ip;
+  } catch {
+    result = null;
   }
+
+  return result;
 };
