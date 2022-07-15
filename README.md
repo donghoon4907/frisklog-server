@@ -10,6 +10,10 @@ Frisklog는 여러 사용자들이 작성한 글을 공유할 수 있도록 만�
 - GraphQL-Yoga v2 Best Practice
 - A simple build method using Babel
 
+## 데이터베이스 구조
+
+- [dbdiagram](https://dbdiagram.io/d/62d18165cc1bc14cc5c849d7)
+
 ## 환경변수 설정하기
 
 `.env.{development|production}` 파일을 구성하여 환경 변수를 설정하세요.

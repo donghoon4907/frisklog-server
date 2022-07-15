@@ -14,12 +14,12 @@ export default (sequelize, DataTypes) => {
         allowNull: true,
         comment: "카테고리명"
       },
-      hasBackup: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: "N",
-        comment: "백업파일유무"
-      },
+      // hasBackup: {
+      //   type: DataTypes.STRING,
+      //   allowNull: true,
+      //   defaultValue: "N",
+      //   comment: "백업파일유무"
+      // },
       createdAt: {
         type: DataTypes.DATE,
         get() {

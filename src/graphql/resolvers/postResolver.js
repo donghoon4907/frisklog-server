@@ -1,7 +1,10 @@
-import moment from "moment";
+// import moment from "moment";
 import { literal } from "sequelize";
 
-import { frisklogGraphQLError, getIpClient } from "../../module/http";
+import {
+  frisklogGraphQLError
+  // getIpClient
+} from "../../module/http";
 import {
   POST_NOT_FOUND,
   POST_CREATE_ERROR,
@@ -93,8 +96,13 @@ export default {
         where,
         paranoid: true,
         include: [
-          user,
-          likers
+          {
+            model: db.User
+          },
+          {
+            model: db.User,
+            as: "Likers"
+          }
           // {
           //   model: db.Comment,
           //   as: "PostComments",
@@ -111,40 +119,40 @@ export default {
       });
 
       // 검색 시 history 추가
-      if (category || searchKeyword) {
-        const param = {};
+      // if (category || searchKeyword) {
+      //   const param = {};
 
-        param.ip = await getIpClient();
+      //   param.ip = await getIpClient();
 
-        if (searchKeyword) {
-          param["searchKeyword"] = searchKeyword;
-        }
+      //   if (searchKeyword) {
+      //     param["searchKeyword"] = searchKeyword;
+      //   }
 
-        if (category) {
-          param["category"] = category;
-        }
+      //   if (category) {
+      //     param["category"] = category;
+      //   }
 
-        const from = moment();
-        from.set({ hour: 0, minute: 0, second: 0 });
+      //   const from = moment();
+      //   from.set({ hour: 0, minute: 0, second: 0 });
 
-        const to = moment();
-        to.set({ hour: 23, minute: 59, second: 59 });
+      //   const to = moment();
+      //   to.set({ hour: 23, minute: 59, second: 59 });
 
-        // 검색 이력 확인
-        const history = await db.History.findOne({
-          where: {
-            ...param,
-            createdAt: {
-              [db.Sequelize.Op.lt]: to,
-              [db.Sequelize.Op.gt]: from
-            }
-          }
-        });
+      //   // 검색 이력 확인
+      //   const history = await db.History.findOne({
+      //     where: {
+      //       ...param,
+      //       createdAt: {
+      //         [db.Sequelize.Op.lt]: to,
+      //         [db.Sequelize.Op.gt]: from
+      //       }
+      //     }
+      //   });
 
-        if (history === null) {
-          await db.History.create(param);
-        }
-      }
+      //   if (history === null) {
+      //     await db.History.create(param);
+      //   }
+      // }
 
       return posts;
     },

@@ -11,7 +11,8 @@
     "dev": "cross-env NODE_ENV=development nodemon --exec babel-node src/index.js",
     "start": "cross-env NODE_ENV=production node build/index.js",
     "restore:post": "cross-env NODE_ENV=development babel-node src/execute/restorePost.js",
-    "backup:post": "cross-env NODE_ENV=development babel-node src/execute/createBackupPost.js"
+    "backup:post": "cross-env NODE_ENV=development babel-node src/execute/createBackupPost.js",
+    "velog:post": "babel-node src/execute/getVelogData.js"
   },
   "author": "frisk",
   "license": "ISC",
@@ -22,6 +23,7 @@
     "@graphql-yoga/node": "^2.8.0",
     "axios": "^0.27.2",
     "bcrypt": "^5.0.1",
+    "cheerio": "^1.0.0-rc.12",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
@@ -32,7 +34,9 @@
     "moment-timezone": "^0.5.34",
     "morgan": "^1.10.0",
     "mysql2": "^2.3.3",
+    "node-schedule": "^2.1.0",
     "sequelize": "^6.20.1",
+    "turndown": "^7.1.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
