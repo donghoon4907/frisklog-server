@@ -46,9 +46,10 @@ export default {
       return db.sequelize.query(
         `
         SELECT u.id, u.nickname, u.avatar,
-        COUNT(*) AS PostCount
+        (SELECT COUNT(*) FROM Posts WHERE UserId = u.id AND deletedAt is NULL) PostCount
         FROM Users AS u
-        JOIN Posts AS p ON p.UserId = u.id
+        JOIN Posts AS p 
+        ON p.UserId = u.id
         GROUP BY u.id
         ORDER BY PostCount DESC
         LIMIT ${limit} OFFSET ${offset}

@@ -10,7 +10,7 @@
     "postbuild": "cd src && npx copy ./**/**/*.graphql ../build/",
     "dev": "cross-env NODE_ENV=development nodemon --exec babel-node src/index.js",
     "start": "cross-env NODE_ENV=production node build/index.js",
-    "restore:post": "node -e 'require(\"./src/module/execute/restorePost\")()'"
+    "restore:post": "cross-env NODE_ENV=development babel-node src/execute/restorePost.js"
   },
   "author": "frisk",
   "license": "ISC",

@@ -91,6 +91,7 @@ export default {
 
       const posts = db.Post.findAndCountAll({
         where,
+        paranoid: true,
         include: [
           user,
           likers
@@ -207,7 +208,8 @@ export default {
       const post = await db.Post.create({
         content,
         category,
-        UserId: me.id
+        UserId: me.id,
+        hasBackup: "Y"
       });
 
       if (post === null) {

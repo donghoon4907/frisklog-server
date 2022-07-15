@@ -1,4 +1,5 @@
 import Sequelize from "sequelize";
+
 import { mysqlConfig } from "../config";
 import User from "./user";
 import Post from "./post";
@@ -6,7 +7,7 @@ import Comment from "./comment";
 // import Category from "./category";
 import History from "./history";
 // import Notice from "./notice";
-import BackupQueue from "./backupQueue";
+// import BackupQueue from "./backupQueue";
 
 const env = process.env.NODE_ENV || "development";
 
