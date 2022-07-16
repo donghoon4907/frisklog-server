@@ -51,13 +51,13 @@ export default {
 
       return db.sequelize.query(
         `
-        SELECT u.id, u.nickname, u.avatar,
+        SELECT u.id, u.nickname, u.avatar, u.PlatformId, u.link,
         (SELECT COUNT(*) FROM Posts WHERE UserId = u.id AND deletedAt is NULL) PostCount
         FROM Users AS u
         JOIN Posts AS p 
         ON p.UserId = u.id
         GROUP BY u.id
-        HAVING u.PlatformId = ${FRISKLOG_PLATFORM_ID}
+        HAVING PostCount > 0 and u.PlatformId = ${FRISKLOG_PLATFORM_ID}
         ORDER BY PostCount DESC
         LIMIT ${limit} OFFSET ${offset}
         `,
@@ -218,7 +218,7 @@ export default {
         // 수정할 별명이 현재 별명과 다른 경우
         if (nickname !== me.nickname) {
           const user = await db.User.findOne({
-            where: { nickname }
+            where: { nickname, PlatformId: FRISKLOG_PLATFORM_ID }
           });
 
           if (user !== null) {
@@ -236,9 +236,9 @@ export default {
       }
 
       if (password) {
-        const hashedPw = await bcrypt.hash(password, 12);
+        const hashedPassword = await bcrypt.hash(password, 12);
 
-        param["password"] = hashedPw;
+        param["password"] = hashedPassword;
       }
 
       const updatedUser = await me.update(param);

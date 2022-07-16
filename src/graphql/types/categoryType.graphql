@@ -1,0 +1,9 @@
+type Category {
+  id: ID!
+  content: String!
+  useCount: Int
+}
+
+type Query {
+  recommendCategories(offset: Int, limit: Int!): [Category!]!
+}

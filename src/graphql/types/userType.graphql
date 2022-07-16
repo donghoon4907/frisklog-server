@@ -5,10 +5,10 @@ type User {
   isMaster: Boolean!
   avatar: String
   Posts: [Post!]!
-  # likes: [Like!]!
-  # UserComments: [Comment!]!
   PostCount: Int
   token: String
+  Platform: Platform!
+  link: String
   createdAt: String!
   updatedAt: String!
 }

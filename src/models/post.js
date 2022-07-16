@@ -9,11 +9,11 @@ export default (sequelize, DataTypes) => {
         allowNull: true,
         comment: "내용"
       },
-      category: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        comment: "카테고리명"
-      },
+      // category: {
+      //   type: DataTypes.STRING,
+      //   allowNull: true,
+      //   comment: "카테고리명"
+      // },
       link: {
         type: DataTypes.TEXT,
         allowNull: true,
@@ -49,6 +49,11 @@ export default (sequelize, DataTypes) => {
     db.Post.belongsTo(db.User);
     db.Post.hasMany(db.Comment, { as: "PostComments" });
     db.Post.belongsToMany(db.User, { through: "Likes", as: "Likers" });
+    db.Post.belongsToMany(db.Category, {
+      through: "PostCategory",
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE"
+    });
   };
 
   return Post;

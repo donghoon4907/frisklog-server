@@ -16,7 +16,7 @@ export default (sequelize, DataTypes) => {
       },
       link: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         comment: "블로그주소"
       },
       password: {

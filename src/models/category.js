@@ -2,12 +2,6 @@ export default (sequelize, DataTypes) => {
   const Category = sequelize.define(
     "Category",
     {
-      useCount: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 1,
-        comment: "사용횟수"
-      },
       content: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -16,11 +10,19 @@ export default (sequelize, DataTypes) => {
     },
     {
       charset: "utf8",
-      collate: "utf8_general_ci"
+      collate: "utf8_general_ci",
+      createdAt: false,
+      updatedAt: false
     }
   );
 
-  Category.associate = db => {};
+  Category.associate = db => {
+    db.Category.belongsToMany(db.Post, {
+      through: "PostCategory",
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE"
+    });
+  };
 
   return Category;
 };

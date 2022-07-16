@@ -1,10 +1,4 @@
-// import moment from "moment";
-import { literal } from "sequelize";
-
-import {
-  frisklogGraphQLError
-  // getIpClient
-} from "../../module/http";
+import { frisklogGraphQLError } from "../../module/http";
 import {
   POST_NOT_FOUND,
   POST_CREATE_ERROR,
@@ -19,14 +13,13 @@ export default {
     /**
      * 게시물 검색
      *
-     * @param {number?}  args.offset 건너뛸 개수
-     * @param {number}   args.limit 검색결과 개수
-     * @param {string?}  args.order 정렬조건
+     * @param {number?}  args.offset        건너뛸 개수
+     * @param {number}   args.limit         검색결과 개수
+     * @param {string?}  args.order         정렬조건
      * @param {string?}  args.searchKeyword 검색어
-     * @param {string?}  args.category 카테고리
-     * @param {string?}  args.userId 사용자 ID
-     * @deprecated {boolean?} args.isThereThumb 썸네일유무
-     * @param {string?}  args.isLike 내가 좋아요한 포스트 여부(마이페이지에서만 사용, userId 필요)
+     * @param {string?}  args.category      카테고리
+     * @param {string?}  args.userId        사용자 ID
+     * @param {string?}  args.isLike        내가 좋아요한 포스트 여부(마이페이지에서만 사용, userId 필요)
      */
     posts: async (_, args, { db }) => {
       const {
@@ -37,20 +30,12 @@ export default {
         category,
         userId,
         isLike
-        // isThereThumb,
-        // isDev
       } = args;
       // post's condition
       const where = {};
-      // post's user
-      const user = {
-        model: db.User
-      };
-      // post;s likers
-      const likers = {
-        model: db.User,
-        as: "Likers"
-      };
+
+      // category's confition
+      const categoryWhere = {};
 
       // if (searchKeyword) {
       //   ["content"].forEach(column => {
@@ -70,12 +55,12 @@ export default {
         };
       }
 
-      if (category) {
-        where["category"] = category;
-      }
-
       if (userId) {
         where["UserId"] = userId;
+      }
+
+      if (category) {
+        categoryWhere["content"] = category;
       }
 
       if (isLike) {
@@ -86,32 +71,26 @@ export default {
         };
       }
 
-      // if (isThereThumb) {
-      //   where[db.Sequelize.Op.not] = {
-      //     thumbnail: null
-      //   };
-      // }
-
       const posts = db.Post.findAndCountAll({
         where,
-        paranoid: true,
         include: [
           {
-            model: db.User
+            model: db.User,
+            include: [
+              {
+                model: db.Platform
+              }
+            ]
           },
           {
             model: db.User,
             as: "Likers"
+          },
+          {
+            model: db.Category,
+            as: "Categories",
+            where: categoryWhere
           }
-          // {
-          //   model: db.Comment,
-          //   as: "PostComments",
-          //   include: [
-          //     {
-          //       model: db.User
-          //     }
-          //   ]
-          // }
         ],
         order: [order.split("_")],
         limit,
@@ -195,51 +174,45 @@ export default {
       // to-be 조회수 증가
 
       return post;
-    },
+    }
     /**
      * 추천 카테고리 검색
      *
      * @param {number?} args.offset 건너뛸 개수
      * @param {number}  args.limit  검색결과 개수
      */
-    recommendCategories: async (_, args, { db }) => {
-      const { offset = 0, limit } = args;
+    // recommendCategories: async (_, args, { db }) => {
+    //   const { offset = 0, limit } = args;
 
-      return db.Post.findAll({
-        attributes: [
-          "category",
-          [db.Sequelize.fn("COUNT", "*"), "searchCount"]
-        ],
-        group: "category",
-        having: literal(`COUNT(*) > 0`),
-        order: literal(`searchCount DESC`),
-        limit,
-        offset,
-        raw: true
-      });
-    }
+    //   return db.Post.findAll({
+    //     attributes: [
+    //       "category",
+    //       [db.Sequelize.fn("COUNT", "*"), "searchCount"]
+    //     ],
+    //     group: "category",
+    //     having: literal(`COUNT(*) > 0`),
+    //     order: literal(`searchCount DESC`),
+    //     limit,
+    //     offset,
+    //     raw: true
+    //   });
+    // }
   },
   Mutation: {
     /**
      * 게시물 등록
      *
-     * @deprecated {string?} args.title 제목
-     * @deprecated {string?} args.description 소개
      * @param {string?} args.content 내용
-     * @param {string?} args.category 카테고리명
-     * @deprecated {string?} args.thumbnail 썸네일 경로
-     * @param {boolean?} args.isDev 개발 여부
+     * @param {string[]?} args.categories 카테고리
      */
     addPost: async (_, args, { request, isAuthenticated, db }) => {
-      const { content, category, isDev } = args;
+      const { content, categories } = args;
 
-      const me = await isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request });
 
       const post = await db.Post.create({
         content,
-        category,
         UserId: me.id
-        // hasBackup: "Y"
       });
 
       if (post === null) {
@@ -247,6 +220,15 @@ export default {
           status: 403
         });
       }
+      // 카테고리 추가
+      for (let i = 0; i < categories.length; i++) {
+        const [category] = await db.Category.findOrCreate({
+          where: { content: categories[i] }
+        });
+
+        await post.addCategories(category);
+      }
+
       // 백업작업 추가
       // const { UserId, ...meta } = post.toJSON();
 
@@ -264,17 +246,13 @@ export default {
      * 게시물 수정
      *
      * @param {string?} args.id 게시물 ID
-     * @deprecated {string?} args.title 제목
-     * @deprecated {string?} args.description 소개
      * @param {string?} args.content 내용
-     * @param {string?} args.category 카테고리명
-     * @deprecated {string?} args.thumbnail 썸네일 경로
-     * @param {boolean?} args.isDev 개발 여부
+     * @param {string[]?} args.categories 카테고리
      */
     updatePost: async (_, args, { request, isAuthenticated, db }) => {
-      const { id, content, category, isDev } = args;
+      const { id, content, categories } = args;
 
-      const me = await isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request });
 
       const post = await db.Post.findByPk(id);
 
@@ -289,15 +267,24 @@ export default {
         });
       }
 
-      const updatedPost = await post.update({
-        content,
-        category
-      });
+      const updatedPost = await post.update({ content });
 
       if (updatedPost === null) {
         frisklogGraphQLError(POST_UPDATE_ERROR, {
           status: 403
         });
+      }
+      // 기존에 저장된 카테고리 삭제 작업
+      const prevCats = await updatedPost.getCategories();
+
+      await updatedPost.removeCategories(prevCats);
+      // 카테고리 추가
+      for (let i = 0; i < categories.length; i++) {
+        const [category] = await db.Category.findOrCreate({
+          where: { content: categories[i] }
+        });
+
+        await updatedPost.addCategories(category);
       }
 
       // 백업작업 추가
@@ -317,12 +304,11 @@ export default {
      * 게시물 삭제
      *
      * @param {string?} args.id 게시물 ID
-     * @param {boolean?} args.isDev 개발 여부
      */
     deletePost: async (_, args, { request, isAuthenticated, db }) => {
-      const { id, isDev } = args;
+      const { id } = args;
 
-      const me = await isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request });
 
       const post = await db.Post.findByPk(id);
 
@@ -344,6 +330,10 @@ export default {
           status: 403
         });
       }
+      // 기존에 저장된 카테고리 삭제 작업
+      const categories = await deletedPost.getCategories();
+
+      await deletedPost.removeCategories(categories);
 
       // 백업작업 추가
       // const { UserId, ...meta } = deletedPost.toJSON();

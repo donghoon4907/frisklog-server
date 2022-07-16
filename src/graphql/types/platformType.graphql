@@ -1,0 +1,7 @@
+type Platform {
+  id: ID!
+  platformName: String!
+  logoUrl: String
+  domainUrl: String
+  storageUrl: String
+}

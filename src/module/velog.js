@@ -51,23 +51,39 @@ export const workVelogPostCrawling = async () => {
         // markup => markdown
         const markedContent = turndownService.turndown(getContent());
 
-        const category = getCategory();
+        const categories = getCategory();
         // 포스트 입수 작업
         const post = await db.Post.findOne({ where: { link: encodeUrl } });
 
         if (post === null) {
-          await db.Post.create({
+          const createdPost = await db.Post.create({
             content: markedContent,
-            category,
+            // category,
             link: encodeUrl,
             UserId: user.id
           });
-          console.log(`Created velog user ${user.id}'s post`);
+
+          if (createdPost !== null) {
+            if (categories.length > 0) {
+              const findCategories = await Promise.all(
+                categories.map(category =>
+                  db.Category.findOrCreate({ where: { content: category } })
+                )
+              );
+
+              await createdPost.addCategories(findCategories.map(r => r[0]));
+            }
+
+            console.log(`Created velog user ${user.id}'s post`);
+          }
         } else {
-          await post.update({
-            content: markedContent,
-            category
+          const updatedPost = await post.update({
+            content: markedContent
+            // category
           });
+
+          if (updatedPost !== null) {
+          }
           console.log(`Updated velog user ${user.id}'s post`);
         }
       }
@@ -108,7 +124,7 @@ export class VelogPostCrawling {
       category.push($(el).text());
     });
 
-    return category.join(",");
+    return category;
   };
 
   getTitle = () => {
@@ -136,7 +152,11 @@ export class VelogPostCrawling {
 
     const thumbnail = getThumbnail();
 
-    return title + thumbnail + $contentWrap.html();
+    const content = $contentWrap.html();
+
+    const adjustContent = content.split("\n").slice(0, 20);
+
+    return title + thumbnail + adjustContent.join("\n");
   };
 
   getEmail = $wrap => {
