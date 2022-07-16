@@ -4,8 +4,9 @@ import { mysqlConfig } from "../config";
 import User from "./user";
 import Post from "./post";
 import Comment from "./comment";
+import Platform from "./platform";
 // import Category from "./category";
-import History from "./history";
+// import History from "./history";
 // import Notice from "./notice";
 // import BackupQueue from "./backupQueue";
 
@@ -20,8 +21,9 @@ const sequelize = new Sequelize(database, username, password, mysqlConfig[env]);
 db.User = User(sequelize, Sequelize);
 db.Post = Post(sequelize, Sequelize);
 db.Comment = Comment(sequelize, Sequelize);
+db.Platform = Platform(sequelize, Sequelize);
 // db.Category = Category(sequelize, Sequelize);
-db.History = History(sequelize, Sequelize);
+// db.History = History(sequelize, Sequelize);
 // db.Notice = Notice(sequelize, Sequelize);
 // db.BackupQueue = BackupQueue(sequelize, Sequelize);
 

@@ -14,6 +14,11 @@ export default (sequelize, DataTypes) => {
         allowNull: true,
         comment: "카테고리명"
       },
+      link: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: "포스트주소"
+      },
       // hasBackup: {
       //   type: DataTypes.STRING,
       //   allowNull: true,

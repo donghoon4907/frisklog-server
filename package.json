@@ -12,7 +12,7 @@
     "start": "cross-env NODE_ENV=production node build/index.js",
     "restore:post": "cross-env NODE_ENV=development babel-node src/execute/restorePost.js",
     "backup:post": "cross-env NODE_ENV=development babel-node src/execute/createBackupPost.js",
-    "velog:post": "babel-node src/execute/getVelogData.js"
+    "crawling:velog": "cross-env NODE_ENV=development babel-node src/execute/getVelogData.js"
   },
   "author": "frisk",
   "license": "ISC",

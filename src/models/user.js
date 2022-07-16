@@ -11,9 +11,13 @@ export default (sequelize, DataTypes) => {
       },
       email: {
         type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
+        allowNull: true,
         comment: "이메일"
+      },
+      link: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        comment: "블로그주소"
       },
       password: {
         type: DataTypes.STRING,
@@ -50,13 +54,14 @@ export default (sequelize, DataTypes) => {
       }
     },
     {
-      charset: "utf8",
-      collate: "utf8_general_ci",
+      charset: "utf8mb4",
+      collate: "utf8mb4_general_ci",
       paranoid: true
     }
   );
 
   User.associate = db => {
+    db.User.belongsTo(db.Platform);
     db.User.hasMany(db.Post, { as: "Posts" });
     db.User.hasMany(db.Comment, { as: "UserComments" });
     db.User.belongsToMany(db.Post, { through: "Likes", as: "LikedPost" });

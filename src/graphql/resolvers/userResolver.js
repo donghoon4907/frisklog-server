@@ -6,9 +6,12 @@ import {
   USER_NOT_FOUND,
   USER_USING_EMAIL,
   USER_USING_NICKNAME,
-  USER__MISMATCH__PASSWORD
+  USER__MISMATCH__PASSWORD,
+  USER_CREATE_ERROR
 } from "../../config/message/user";
 import { WRONG_AUTH } from "../../config";
+
+const FRISKLOG_PLATFORM_ID = parseInt(process.env.PLATFORM_ID, 10);
 
 export default {
   Query: {
@@ -23,6 +26,9 @@ export default {
       const { offset = 0, limit, order = "createdAt_DESC" } = args;
 
       return db.User.findAndCountAll({
+        where: {
+          PlatformId: FRISKLOG_PLATFORM_ID
+        },
         include: [
           {
             model: db.Post,
@@ -51,6 +57,7 @@ export default {
         JOIN Posts AS p 
         ON p.UserId = u.id
         GROUP BY u.id
+        HAVING u.PlatformId = ${FRISKLOG_PLATFORM_ID}
         ORDER BY PostCount DESC
         LIMIT ${limit} OFFSET ${offset}
         `,
@@ -104,7 +111,7 @@ export default {
       const { email, password } = args;
 
       const user = await db.User.findOne({
-        where: { email }
+        where: { email, PlatformId: FRISKLOG_PLATFORM_ID }
       });
 
       if (user === null) {
@@ -159,7 +166,8 @@ export default {
 
       const user = await db.User.findOne({
         where: {
-          [db.Sequelize.Op.or]: [{ email }, { nickname }]
+          [db.Sequelize.Op.or]: [{ email }, { nickname }],
+          PlatformId: FRISKLOG_PLATFORM_ID
         }
       });
 
@@ -171,14 +179,23 @@ export default {
         }
       }
 
-      const hashedPw = await bcrypt.hash(password, 12);
+      const hashedPassword = await bcrypt.hash(password, 12);
 
-      await db.User.create({
+      const createdUser = await db.User.create({
         email,
-        password: hashedPw,
+        password: hashedPassword,
         nickname,
-        avatar
+        avatar,
+        PlatformId: FRISKLOG_PLATFORM_ID
       });
+
+      if (createdUser === null) {
+        frisklogGraphQLError(USER_CREATE_ERROR, {
+          status: 403
+        });
+      }
+
+      await createdUser.update({ link: `/user/${createdUser.id}` });
 
       return true;
     },

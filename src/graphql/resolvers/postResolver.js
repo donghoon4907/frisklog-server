@@ -238,8 +238,8 @@ export default {
       const post = await db.Post.create({
         content,
         category,
-        UserId: me.id,
-        hasBackup: "Y"
+        UserId: me.id
+        // hasBackup: "Y"
       });
 
       if (post === null) {
