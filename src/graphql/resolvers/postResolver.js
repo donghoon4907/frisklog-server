@@ -136,7 +136,7 @@ export default {
       return posts;
     },
     /**
-     * 게시물 상세 조회
+     * 게시물 상세 조회(현재 미사용 중)
      *
      * @param {number} args.id 게시물 ID
      */
