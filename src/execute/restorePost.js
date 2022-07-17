@@ -37,7 +37,7 @@ const BACKUP_PATH = path.join(__dirname, "../backup");
             return;
           }
 
-          await db.Post.create({ ...meta, UserId: user.id, hasBackup: "Y" });
+          await db.Post.create({ ...meta, UserId: user.id });
 
           console.log(`${file} - post id: ${id} created.`);
         }

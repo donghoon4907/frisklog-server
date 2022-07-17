@@ -6,7 +6,6 @@ import { createPost } from "../module/backup";
   console.log(`Execute createBackupPostJob(DB => file) Start at ${new Date()}`);
 
   const posts = await db.Post.findAll({
-    where: { hasBackup: { [db.Sequelize.Op.or]: ["N", ""] } },
     include: [
       {
         model: db.User
@@ -18,7 +17,5 @@ import { createPost } from "../module/backup";
     const { User, ...meta } = post;
 
     createPost(User.email, meta);
-
-    await post.update({ hasBackup: "Y" });
   });
 })();

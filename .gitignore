@@ -121,7 +121,11 @@ build
 src/upload/*
 
 # backup folder
-
 src/backup/*
+
+# About crawling
+src/schedule/getBlogData.js
+src/execute/getVelogData.js
+src/module/velog.js
 
 # End of https://www.toptal.com/developers/gitignore/api/node

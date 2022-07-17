@@ -6,7 +6,6 @@ import {
   POST_DESTROY_ERROR
 } from "../../config/message/post";
 import { WRONG_APPROACH } from "../../config/message";
-// import { createPost, updatePost } from "../../module/backup";
 
 export default {
   Query: {
@@ -31,23 +30,18 @@ export default {
         userId,
         isLike
       } = args;
-      // post's condition
+
       const where = {};
 
-      // category's confition
-      const categoryWhere = {};
+      const categories = {
+        model: db.Category,
+        as: "Categories"
+      };
 
-      // if (searchKeyword) {
-      //   ["content"].forEach(column => {
-      //     where[db.Sequelize.Op.or].push({
-      //       [column]: {
-      //         [db.Sequelize.Op.like]: `%${searchKeyword}%`
-      //       }
-      //     });
-      //   });
-      // } else {
-      //   delete where[db.Sequelize.Op.or];
-      // }
+      const likers = {
+        model: db.User,
+        as: "Likers"
+      };
 
       if (searchKeyword) {
         where["content"] = {
@@ -60,7 +54,9 @@ export default {
       }
 
       if (category) {
-        categoryWhere["content"] = category;
+        categories["where"] = {
+          content: category
+        };
       }
 
       if (isLike) {
@@ -82,15 +78,8 @@ export default {
               }
             ]
           },
-          {
-            model: db.User,
-            as: "Likers"
-          },
-          {
-            model: db.Category,
-            as: "Categories",
-            where: categoryWhere
-          }
+          likers,
+          categories
         ],
         order: [order.split("_")],
         limit,
@@ -153,15 +142,6 @@ export default {
             model: db.User,
             as: "Likers"
           }
-          // {
-          //   model: db.Comment,
-          //   as: "PostComments",
-          //   include: [
-          //     {
-          //       model: db.User
-          //     }
-          //   ]
-          // }
         ]
       });
 
@@ -171,32 +151,8 @@ export default {
         });
       }
 
-      // to-be 조회수 증가
-
       return post;
     }
-    /**
-     * 추천 카테고리 검색
-     *
-     * @param {number?} args.offset 건너뛸 개수
-     * @param {number}  args.limit  검색결과 개수
-     */
-    // recommendCategories: async (_, args, { db }) => {
-    //   const { offset = 0, limit } = args;
-
-    //   return db.Post.findAll({
-    //     attributes: [
-    //       "category",
-    //       [db.Sequelize.fn("COUNT", "*"), "searchCount"]
-    //     ],
-    //     group: "category",
-    //     having: literal(`COUNT(*) > 0`),
-    //     order: literal(`searchCount DESC`),
-    //     limit,
-    //     offset,
-    //     raw: true
-    //   });
-    // }
   },
   Mutation: {
     /**
@@ -228,17 +184,6 @@ export default {
 
         await post.addCategories(category);
       }
-
-      // 백업작업 추가
-      // const { UserId, ...meta } = post.toJSON();
-
-      // const isSuccessBackup = createPost(me.email, meta);
-
-      // if (!isSuccessBackup) {
-      //   frisklogGraphQLError(POST_BACKUP_ERROR, {
-      //     status: 403
-      //   });
-      // }
 
       return true;
     },
@@ -287,17 +232,6 @@ export default {
         await updatedPost.addCategories(category);
       }
 
-      // 백업작업 추가
-      // const { UserId, ...meta } = updatedPost.toJSON();
-
-      // const isSuccessBackup = updatePost(me.email, meta);
-
-      // if (!isSuccessBackup) {
-      //   frisklogGraphQLError(POST_BACKUP_ERROR, {
-      //     status: 403
-      //   });
-      // }
-
       return true;
     },
     /**
@@ -335,27 +269,15 @@ export default {
 
       await deletedPost.removeCategories(categories);
 
-      // 백업작업 추가
-      // const { UserId, ...meta } = deletedPost.toJSON();
-
-      // const isSuccessBackup = updatePost(me.email, meta);
-
-      // if (!isSuccessBackup) {
-      //   frisklogGraphQLError(POST_BACKUP_ERROR, {
-      //     status: 403
-      //   });
-      // }
-
       return true;
     },
     /**
      * 게시물 좋아요
      *
      * @param {string} args.id 게시물 ID
-     * @param {boolean?} args.isDev 개발 여부
      */
     likePost: async (_, args, { request, isAuthenticated, db }) => {
-      const { id, isDev } = args;
+      const { id } = args;
 
       const me = await isAuthenticated({ request }, isDev);
 
@@ -375,12 +297,11 @@ export default {
      * 게시물 좋아요 취소
      *
      * @param {string?} args.id 게시물 ID
-     * @param {boolean?} args.isDev 개발 여부
      */
     unlikePost: async (_, args, { request, isAuthenticated, db }) => {
-      const { id, isDev } = args;
+      const { id } = args;
 
-      const me = await isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request });
 
       const post = await db.Post.findByPk(id);
 
