@@ -279,7 +279,7 @@ export default {
     likePost: async (_, args, { request, isAuthenticated, db }) => {
       const { id } = args;
 
-      const me = await isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request });
 
       const post = await db.Post.findByPk(id);
 

@@ -127,5 +127,6 @@ src/backup/*
 src/schedule/getBlogData.js
 src/execute/getVelogData.js
 src/module/velog.js
+src/assets/velog-icon.png
 
 # End of https://www.toptal.com/developers/gitignore/api/node

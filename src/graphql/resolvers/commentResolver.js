@@ -1,5 +1,8 @@
 import { frisklogGraphQLError } from "../../module/http";
-import { COMMENT_NOT_FOUND } from "../../config/message/comment";
+import {
+  COMMENT_NOT_FOUND,
+  COMMENT_CREATE_ERROR
+} from "../../config/message/comment";
 import { POST_NOT_FOUND } from "../../config/message/post";
 import { WRONG_APPROACH } from "../../config/message";
 
@@ -26,7 +29,12 @@ export default {
         where,
         include: [
           {
-            model: db.User
+            model: db.User,
+            include: [
+              {
+                model: db.Platform
+              }
+            ]
           }
         ],
         order: [order.split("_")],
@@ -41,12 +49,11 @@ export default {
      *
      * @param {number} args.postId 게시물 ID
      * @param {string} args.content 내용
-     * @param {boolean?} args.isDev 개발 여부
      */
     addComment: async (_, args, { request, isAuthenticated, db }) => {
-      const { postId, content, isDev } = args;
+      const { postId, content } = args;
 
-      const me = await isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request });
 
       const post = await db.Post.findByPk(postId);
 
@@ -61,6 +68,12 @@ export default {
         UserId: me.id,
         PostId: postId
       });
+
+      if (comment === null) {
+        frisklogGraphQLError(COMMENT_CREATE_ERROR, {
+          status: 403
+        });
+      }
 
       return comment;
     },

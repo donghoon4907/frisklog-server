@@ -51,14 +51,16 @@ export default {
 
       return db.sequelize.query(
         `
-        SELECT u.id, u.nickname, u.avatar, u.PlatformId, u.link,
-        (SELECT COUNT(*) FROM Posts WHERE UserId = u.id AND deletedAt is NULL) PostCount
+        SELECT u.id, u.nickname, u.avatar, u.PlatformId, u.link, pl.storageUrl,
+        (SELECT COUNT(*) FROM Posts WHERE UserId = u.id AND deletedAt is NULL) postCount
         FROM Users AS u
         JOIN Posts AS p 
         ON p.UserId = u.id
+        JOIN Platforms AS pl
+        ON u.PlatformId = pl.id
         GROUP BY u.id
-        HAVING PostCount > 0 and u.PlatformId = ${FRISKLOG_PLATFORM_ID}
-        ORDER BY PostCount DESC
+        HAVING postCount > 0 and u.PlatformId = ${FRISKLOG_PLATFORM_ID}
+        ORDER BY postCount DESC
         LIMIT ${limit} OFFSET ${offset}
         `,
         {

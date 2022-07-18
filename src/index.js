@@ -55,10 +55,12 @@ app.post("/api/upload", (req, res) => {
     return res.status(403).send("이미지 파일만 업로드 할 수 있습니다.");
   }
 
-  const ext = splitFilename[1];
+  const ext = splitFilename[1].toLowerCase();
 
-  if (ext !== "jpg" && ext !== "png") {
-    return res.status(403).send("이미지 파일이 jpg 또는 png 형식이 아닙니다.");
+  if (!["jpg", "jpeg", "png", "gif"].includes(ext)) {
+    return res
+      .status(403)
+      .send("jpg, jpeg, png, gif 파일만 업로드 할 수 있습니다.");
   }
 
   const outputFilename = `${uuidv4()}.${ext}`;
@@ -67,7 +69,7 @@ app.post("/api/upload", (req, res) => {
     if (err) {
       return res.status(500).send("업로드 중 서버에서 문제가 발생했습니다.");
     } else {
-      return res.json(outputFilename);
+      return res.json(`/${outputFilename}`);
     }
   });
 });
