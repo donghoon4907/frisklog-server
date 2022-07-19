@@ -25,10 +25,7 @@ const writeBackupFile = (filename, data) => {
   try {
     fs.writeFileSync(
       `${BACKUP_PATH}/${filename}.json`,
-      JSON.stringify(
-        data
-        // , null, "\t"
-      )
+      JSON.stringify(data, null, "\t")
     );
 
     result = true;

@@ -14,8 +14,10 @@ import { createPost } from "../module/backup";
   });
 
   posts.forEach(async post => {
-    const { User, ...meta } = post;
+    const { User, ...meta } = post.toJSON();
 
-    createPost(User.email, meta);
+    if (User.email) {
+      createPost(User.email, meta);
+    }
   });
 })();
