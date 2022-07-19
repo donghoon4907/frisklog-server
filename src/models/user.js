@@ -37,8 +37,9 @@ export default (sequelize, DataTypes) => {
       },
       avatar: {
         type: DataTypes.STRING,
-        allowNull: true,
-        comment: "프로필사진"
+        allowNull: false,
+        comment: "프로필사진",
+        defaultValue: "/avatar.png"
       },
       createdAt: {
         type: DataTypes.DATE,

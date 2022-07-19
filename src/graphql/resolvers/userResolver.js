@@ -12,8 +12,6 @@ import {
 import { WRONG_AUTH } from "../../config";
 // 플랫폼 ID
 const FRISKLOG_PLATFORM_ID = parseInt(process.env.PLATFORM_ID, 10);
-// 프로필 사진 기본값
-const DEFAULT_AVATAR = process.env.DEFAULT_AVATAR;
 
 export default {
   Query: {
@@ -166,7 +164,7 @@ export default {
      * @param {string}  args.password 암호
      */
     addUser: async (_, args, { db }) => {
-      const { email, password, nickname, avatar = DEFAULT_AVATAR } = args;
+      const { email, password, nickname, avatar } = args;
 
       const user = await db.User.findOne({
         where: {
