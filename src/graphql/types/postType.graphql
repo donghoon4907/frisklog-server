@@ -1,31 +1,27 @@
 type Post {
   id: ID!
   content: String
-  Categories: [Category!]!
   link: String
   User: User!
   Likers: [User!]!
+  Categories: [Category!]!
   createdAt: String!
   updatedAt: String!
 }
 
-type PostList {
-  rows: [Post!]!
-  count: Int!
-}
-
 type Query {
   posts(
-    offset: Int
+    cursor: String
     limit: Int!
-    order: String
+    # order: String!
     searchKeyword: String
-    category: String
     userId: String
     isLike: Boolean
-  ): PostList!
+  ): [Post!]!
 
   post(id: String!): Post!
+
+  postsByCategory(content: String!, cursor: String, limit: Int!): [Post!]!
 }
 
 type Mutation {

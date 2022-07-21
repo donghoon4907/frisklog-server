@@ -5,6 +5,7 @@ import {
   POST_UPDATE_ERROR,
   POST_DESTROY_ERROR
 } from "../../config/message/post";
+import { CATEGORY_NOT_FOUND } from "../../config/message/category";
 import { WRONG_APPROACH } from "../../config/message";
 
 export default {
@@ -12,36 +13,30 @@ export default {
     /**
      * 게시물 검색
      *
-     * @param {number?}  args.offset        건너뛸 개수
-     * @param {number}   args.limit         검색결과 개수
-     * @param {string?}  args.order         정렬조건
+     * @param {number?}  args.cursor        커서
+     * @param {number}   args.limit         요청 목록의 수
+     * @param {string?}  args.order         정렬
      * @param {string?}  args.searchKeyword 검색어
-     * @param {string?}  args.category      카테고리
      * @param {string?}  args.userId        사용자 ID
      * @param {string?}  args.isLike        내가 좋아요한 포스트 여부(마이페이지에서만 사용, userId 필요)
      */
     posts: async (_, args, { db }) => {
-      const {
-        offset = 0,
-        limit,
-        order = "createdAt_DESC",
-        searchKeyword,
-        category,
-        userId,
-        isLike
-      } = args;
+      const { cursor = "0", limit, searchKeyword, userId, isLike } = args;
 
       const where = {};
-
-      const categories = {
-        model: db.Category,
-        as: "Categories"
-      };
 
       const likers = {
         model: db.User,
         as: "Likers"
       };
+
+      const intCursor = parseInt(cursor, 10);
+
+      if (cursor > 0) {
+        where["id"] = {
+          [db.Sequelize.Op.lt]: intCursor
+        };
+      }
 
       if (searchKeyword) {
         where["content"] = {
@@ -53,12 +48,6 @@ export default {
         where["UserId"] = userId;
       }
 
-      if (category) {
-        categories["where"] = {
-          content: category
-        };
-      }
-
       if (isLike) {
         delete where["UserId"];
 
@@ -67,7 +56,7 @@ export default {
         };
       }
 
-      const posts = db.Post.findAndCountAll({
+      const posts = db.Post.findAll({
         where,
         include: [
           {
@@ -78,12 +67,14 @@ export default {
               }
             ]
           },
-          likers,
-          categories
+          {
+            model: db.Category,
+            as: "Categories"
+          },
+          likers
         ],
-        order: [order.split("_")],
-        limit,
-        offset
+        order: [["id", "DESC"]],
+        limit
       });
 
       // 검색 시 history 추가
@@ -152,6 +143,59 @@ export default {
       }
 
       return post;
+    },
+    /**
+     * 카테고리별 게시물 검색
+     *
+     * @param {string} args.content  카테고리명
+     * @param {string} args.cursor   포스트 커서
+     * @param {number} args.limit    포스트 요청 목록의 수
+     * @param {string} args.order    포스트 정렬
+     */
+    postsByCategory: async (_, args, { db }) => {
+      const { content, cursor = "0", limit } = args;
+
+      const where = {};
+
+      const intCursor = parseInt(cursor, 10);
+
+      if (cursor > 0) {
+        where["id"] = {
+          [db.Sequelize.Op.lt]: intCursor
+        };
+      }
+
+      const category = await db.Category.findOne({ where: { content } });
+
+      if (category === null) {
+        frisklogGraphQLError(CATEGORY_NOT_FOUND, {
+          status: 403
+        });
+      }
+
+      return category.getPosts({
+        where,
+        include: [
+          {
+            model: db.User,
+            include: [
+              {
+                model: db.Platform
+              }
+            ]
+          },
+          {
+            model: db.User,
+            as: "Likers"
+          },
+          {
+            model: db.Category,
+            as: "Categories"
+          }
+        ],
+        order: [["id", "DESC"]],
+        limit
+      });
     }
   },
   Mutation: {
