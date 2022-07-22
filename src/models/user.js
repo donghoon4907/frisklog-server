@@ -19,11 +19,11 @@ export default (sequelize, DataTypes) => {
         allowNull: true,
         comment: "블로그주소"
       },
-      password: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        comment: "암호"
-      },
+      // password: {
+      //   type: DataTypes.STRING,
+      //   allowNull: true,
+      //   comment: "암호"
+      // },
       isMaster: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

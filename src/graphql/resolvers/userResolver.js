@@ -6,10 +6,13 @@ import {
   USER_NOT_FOUND,
   USER_USING_EMAIL,
   USER_USING_NICKNAME,
-  USER__MISMATCH__PASSWORD,
-  USER_CREATE_ERROR
+  USER_MISMATCH_TOKEN,
+  USER_CREATE_ERROR,
+  EMAIL_SEND_ERROR
 } from "../../config/message/user";
 import { WRONG_AUTH } from "../../config";
+import { sendMail } from "../../module/mail";
+
 // 플랫폼 ID
 const FRISKLOG_PLATFORM_ID = parseInt(process.env.PLATFORM_ID, 10);
 
@@ -106,11 +109,10 @@ export default {
     /**
      * 로그인
      *
-     * @param {string} args.email    이메일
-     * @param {string} args.password 암호
+     * @param {string} args.email 이메일
      */
     logIn: async (_, args, { db }) => {
-      const { email, password } = args;
+      const { email } = args;
 
       const user = await db.User.findOne({
         where: { email, PlatformId: FRISKLOG_PLATFORM_ID }
@@ -122,10 +124,35 @@ export default {
         });
       }
 
-      const auth = await bcrypt.compare(password, user.password);
+      const token = Math.floor(Math.random() * 9000 + 1000);
 
-      if (!auth) {
-        frisklogGraphQLError(USER__MISMATCH__PASSWORD, {
+      try {
+        await sendMail({ email, token });
+
+        await user.update({ token });
+      } catch (e) {
+        frisklogGraphQLError(EMAIL_SEND_ERROR, {
+          status: 403
+        });
+      }
+
+      return true;
+    },
+    /**
+     * 인증
+     *
+     * @param {string} args.email 이메일
+     * @param {string} args.token 인증코드
+     */
+    verifyToken: async (_, args, { db }) => {
+      const { email, token } = args;
+
+      const user = await db.User.findOne({
+        where: { email, token, PlatformId: FRISKLOG_PLATFORM_ID }
+      });
+
+      if (user === null) {
+        frisklogGraphQLError(USER_MISMATCH_TOKEN, {
           status: 403
         });
       }
@@ -161,10 +188,9 @@ export default {
      * @param {string}  args.email    이메일
      * @param {string}  args.nickname 별명
      * @param {string?} args.avatar   썸네일 경로
-     * @param {string}  args.password 암호
      */
     addUser: async (_, args, { db }) => {
-      const { email, password, nickname, avatar } = args;
+      const { email, nickname, avatar } = args;
 
       const user = await db.User.findOne({
         where: {
@@ -181,11 +207,8 @@ export default {
         }
       }
 
-      const hashedPassword = await bcrypt.hash(password, 12);
-
       const createdUser = await db.User.create({
         email,
-        password: hashedPassword,
         nickname,
         avatar,
         PlatformId: FRISKLOG_PLATFORM_ID
@@ -204,13 +227,11 @@ export default {
     /**
      * 내 정보 수정
      *
-     * @param {string}   args.password 암호
      * @param {string?}  args.nickname 별명
      * @param {string?}  args.avatar   프로필사진 경로
-     * @deprecated {boolean?} args.isDev    개발 여부
      */
     updateUser: async (_, args, { request, isAuthenticated, db }) => {
-      const { password, nickname, avatar } = args;
+      const { nickname, avatar } = args;
 
       const me = await isAuthenticated({ request });
 
@@ -235,12 +256,6 @@ export default {
 
       if (avatar) {
         param["avatar"] = avatar;
-      }
-
-      if (password) {
-        const hashedPassword = await bcrypt.hash(password, 12);
-
-        param["password"] = hashedPassword;
       }
 
       const updatedUser = await me.update(param);

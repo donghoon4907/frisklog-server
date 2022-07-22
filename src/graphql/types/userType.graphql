@@ -38,16 +38,13 @@ type Query {
 }
 
 type Mutation {
-  logIn(email: String!, password: String!): User!
+  logIn(email: String!): Boolean!
+
+  verifyToken(email: String!, token: String!): User!
 
   logInWithGoogle(email: String!, nickname: String!): User!
 
-  addUser(
-    email: String!
-    password: String!
-    nickname: String!
-    avatar: String
-  ): Boolean!
+  addUser(email: String!, nickname: String!, avatar: String): Boolean!
 
-  updateUser(password: String, nickname: String, avatar: String): User!
+  updateUser(nickname: String, avatar: String): User!
 }
