@@ -97,12 +97,83 @@ export default {
 
       return user;
     },
-    me: async (_, __, { request, isAuthenticated, db }) => {
-      const { id } = await isAuthenticated({ request });
+    /**
+     * 팔로워 검색
+     *
+     * @param {number?} args.cursor 커서
+     * @param {number}  args.limit  요청 목록의 수
+     * @param {string}  args.userId 사용자 ID
+     */
+    followers: async (_, args, { db }) => {
+      const { cursor = "0", limit, userId } = args;
 
-      return db.User.findOne({
-        where: { id }
+      const intCursor = parseInt(cursor, 10);
+
+      if (cursor > 0) {
+        where["id"] = {
+          [db.Sequelize.Op.lt]: intCursor
+        };
+      }
+
+      const user = await db.User.findByPk(userId);
+
+      if (user === null) {
+        frisklogGraphQLError(USER_NOT_FOUND, {
+          status: 403
+        });
+      }
+
+      const followers = await user.getFollowers({
+        where,
+        include: [
+          {
+            model: db.Platform
+          }
+        ],
+        order: [["id", "DESC"]],
+        limit
       });
+
+      return followers;
+    },
+    /**
+     * 팔로잉 검색
+     *
+     * @param {number?} args.cursor 커서
+     * @param {number}  args.limit  요청 목록의 수
+     * @param {string}  args.userId 사용자 ID
+     */
+    followings: async (_, args, { db }) => {
+      const { cursor = "0", limit, userId } = args;
+
+      const intCursor = parseInt(cursor, 10);
+
+      if (cursor > 0) {
+        where["id"] = {
+          [db.Sequelize.Op.lt]: intCursor
+        };
+      }
+
+      const user = await db.User.findByPk(userId);
+
+      if (user === null) {
+        frisklogGraphQLError(USER_NOT_FOUND, {
+          status: 403
+        });
+      }
+
+      const followings = await user.getFollowings({
+        where,
+        include: [
+          {
+            model: db.Platform
+          }
+        ],
+        order: [["id", "DESC"]],
+        limit
+      });
+
+      return followings;
     }
   },
   Mutation: {

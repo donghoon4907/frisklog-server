@@ -13,12 +13,12 @@ export default {
     /**
      * 게시물 검색
      *
-     * @param {number?}  args.cursor        커서
-     * @param {number}   args.limit         요청 목록의 수
-     * @param {string?}  args.order         정렬
-     * @param {string?}  args.searchKeyword 검색어
-     * @param {string?}  args.userId        사용자 ID
-     * @param {string?}  args.isLike        내가 좋아요한 포스트 여부(마이페이지에서만 사용, userId 필요)
+     * @param {string?} args.cursor        커서
+     * @param {number}  args.limit         요청 목록의 수
+     * @param {string?} args.order         정렬
+     * @param {string?} args.searchKeyword 검색어
+     * @param {string?} args.userId        사용자 ID
+     * @param {string?} args.isLike        내가 좋아요한 포스트 여부(마이페이지에서만 사용, userId 필요)
      */
     posts: async (_, args, { db }) => {
       const { cursor = "0", limit, searchKeyword, userId, isLike } = args;
@@ -32,7 +32,7 @@ export default {
 
       const intCursor = parseInt(cursor, 10);
 
-      if (cursor > 0) {
+      if (intCursor > 0) {
         where["id"] = {
           [db.Sequelize.Op.lt]: intCursor
         };

@@ -34,7 +34,9 @@ type Query {
 
   user(id: String!): User!
 
-  me: User!
+  followers(cursor: String, limit: Int!, userId: String!): [User!]!
+
+  followings(cursor: String, limit: Int!, userId: String!): [User!]!
 }
 
 type Mutation {
