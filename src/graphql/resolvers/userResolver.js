@@ -1,5 +1,4 @@
 import { QueryTypes } from "sequelize";
-import bcrypt from "bcrypt";
 import { frisklogGraphQLError } from "../../module/http";
 import { generateToken, getToken, refreshToken } from "../../module/token";
 import {
@@ -344,6 +343,50 @@ export default {
       updatedUser["token"] = nextToken;
 
       return updatedUser;
+    },
+    /**
+     * 팔로우
+     *
+     * @param {string} args.id 사용자 ID
+     */
+    follow: async (_, args, { request, isAuthenticated, db }) => {
+      const { id } = args;
+
+      const me = await isAuthenticated({ request });
+
+      const user = await db.User.findByPk(id);
+
+      if (user === null) {
+        frisklogGraphQLError(USER_NOT_FOUND, {
+          status: 403
+        });
+      } else {
+        await me.addFollowings(user.id);
+      }
+
+      return true;
+    },
+    /**
+     * 언팔로우
+     *
+     * @param {string} args.id 사용자 ID
+     */
+    unfollow: async (_, args, { request, isAuthenticated, db }) => {
+      const { id } = args;
+
+      const me = await isAuthenticated({ request });
+
+      const user = await db.User.findByPk(id);
+
+      if (user === null) {
+        frisklogGraphQLError(USER_NOT_FOUND, {
+          status: 403
+        });
+      } else {
+        await me.removeFollowings(user.id);
+      }
+
+      return true;
     }
   }
 };
