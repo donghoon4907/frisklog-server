@@ -17,11 +17,7 @@ export default (sequelize, DataTypes) => {
   );
 
   Category.associate = db => {
-    db.Category.belongsToMany(db.Post, {
-      through: "PostCategory",
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE"
-    });
+    db.Category.belongsToMany(db.Post, { through: "PostCategory" });
   };
 
   return Category;

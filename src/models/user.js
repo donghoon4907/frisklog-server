@@ -63,10 +63,19 @@ export default (sequelize, DataTypes) => {
 
   User.associate = db => {
     db.User.belongsTo(db.Platform);
-    db.User.hasMany(db.Post, { as: "Posts" });
-    db.User.hasMany(db.Comment, { as: "UserComments" });
+    db.User.hasMany(db.Post, { as: "Posts", onDelete: "cascade" });
+    db.User.hasMany(db.Comment, { as: "UserComments", onDelete: "cascade" });
     db.User.belongsToMany(db.Post, { through: "Likes", as: "LikedPost" });
-    // db.User.hasMany(db.History, { as: "Histories" });
+    db.User.belongsToMany(db.User, {
+      through: "Follows",
+      as: "Followers",
+      foreignKey: "FollowingId"
+    });
+    db.User.belongsToMany(db.User, {
+      through: "Follows",
+      as: "Followings",
+      foreignKey: "FollowerId"
+    });
   };
 
   return User;

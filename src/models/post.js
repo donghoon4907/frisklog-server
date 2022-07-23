@@ -3,6 +3,7 @@ import { withTimezone } from "../module/moment";
 export default (sequelize, DataTypes) => {
   const Post = sequelize.define(
     "Post",
+
     {
       content: {
         type: DataTypes.TEXT,
@@ -46,14 +47,10 @@ export default (sequelize, DataTypes) => {
   );
 
   Post.associate = db => {
-    db.Post.belongsTo(db.User);
-    db.Post.hasMany(db.Comment, { as: "PostComments" });
+    db.Post.belongsTo(db.User, { onDelete: "cascade" });
+    db.Post.hasMany(db.Comment, { as: "PostComments", onDelete: "cascade" });
     db.Post.belongsToMany(db.User, { through: "Likes", as: "Likers" });
-    db.Post.belongsToMany(db.Category, {
-      through: "PostCategory",
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE"
-    });
+    db.Post.belongsToMany(db.Category, { through: "PostCategory" });
   };
 
   return Post;
