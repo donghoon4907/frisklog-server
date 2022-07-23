@@ -10,22 +10,11 @@ export default (sequelize, DataTypes) => {
         allowNull: true,
         comment: "내용"
       },
-      // category: {
-      //   type: DataTypes.STRING,
-      //   allowNull: true,
-      //   comment: "카테고리명"
-      // },
       link: {
         type: DataTypes.TEXT,
         allowNull: true,
         comment: "포스트주소"
       },
-      // hasBackup: {
-      //   type: DataTypes.STRING,
-      //   allowNull: true,
-      //   defaultValue: "N",
-      //   comment: "백업파일유무"
-      // },
       createdAt: {
         type: DataTypes.DATE,
         get() {
@@ -50,7 +39,7 @@ export default (sequelize, DataTypes) => {
     db.Post.belongsTo(db.User, { onDelete: "cascade" });
     db.Post.hasMany(db.Comment, { as: "PostComments", onDelete: "cascade" });
     db.Post.belongsToMany(db.User, { through: "Likes", as: "Likers" });
-    db.Post.belongsToMany(db.Category, { through: "PostCategory" });
+    db.Post.belongsToMany(db.Category, { through: "PostCategories" });
   };
 
   return Post;

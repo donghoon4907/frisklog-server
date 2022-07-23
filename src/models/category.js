@@ -17,7 +17,7 @@ export default (sequelize, DataTypes) => {
   );
 
   Category.associate = db => {
-    db.Category.belongsToMany(db.Post, { through: "PostCategory" });
+    db.Category.belongsToMany(db.Post, { through: "PostCategories" });
   };
 
   return Category;

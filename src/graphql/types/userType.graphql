@@ -4,22 +4,15 @@ type User {
   email: String!
   isMaster: Boolean!
   avatar: String
-  Posts: [Post!]!
   token: String
-  Platform: Platform!
   link: String
   createdAt: String!
   updatedAt: String!
-}
-
-type RecommendUser {
-  id: ID!
-  nickname: String!
-  avatar: String
-  PlatformId: Int!
-  link: String
-  storageUrl: String!
-  postCount: Int!
+  postCount: Int # 사용자의 포스트 수
+  Platform: Platform! # 사용자의 플랫폼
+  Posts: [Post!]! # 사용자의 포스트 목록
+  Followings: [User!]! # 사용자의 팔로잉 목록
+  Followers: [User!]! # 사용자의 팔로워 목록
 }
 
 type UserList {
@@ -30,7 +23,7 @@ type UserList {
 type Query {
   users(offset: Int, limit: Int!, order: String): UserList!
 
-  recommenders(offset: Int, limit: Int!): [RecommendUser!]!
+  recommenders(cursor: String, limit: Int!): [User!]!
 
   user(id: String!): User!
 
@@ -49,4 +42,8 @@ type Mutation {
   addUser(email: String!, nickname: String!, avatar: String): Boolean!
 
   updateUser(nickname: String, avatar: String): User!
+
+  follow(id: String!): Boolean!
+
+  unfollow(id: String!): Boolean!
 }

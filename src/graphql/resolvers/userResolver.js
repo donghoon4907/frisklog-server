@@ -1,4 +1,4 @@
-import { QueryTypes } from "sequelize";
+import { literal, Op } from "sequelize";
 import { frisklogGraphQLError } from "../../module/http";
 import { generateToken, getToken, refreshToken } from "../../module/token";
 import {
@@ -45,30 +45,54 @@ export default {
     /**
      * 추천 사용자 검색
      *
-     * @param {number?} args.offset 건너뛸 개수
-     * @param {number} args.limit 검색결과 개수
+     * @param {string?} args.cursor 커서
+     * @param {number}  args.limit  요청 목록의 수
      */
     recommenders: async (_, args, { db }) => {
-      const { offset = 0, limit } = args;
+      const { cursor = "0", limit } = args;
 
-      return db.sequelize.query(
-        `
-        SELECT u.id, u.nickname, u.avatar, u.PlatformId, u.link, pl.storageUrl,
-        (SELECT COUNT(*) FROM Posts WHERE UserId = u.id AND deletedAt is NULL) postCount
-        FROM Users AS u
-        JOIN Posts AS p 
-        ON p.UserId = u.id
-        JOIN Platforms AS pl
-        ON u.PlatformId = pl.id
-        GROUP BY u.id
-        HAVING postCount > 0 and u.PlatformId = ${FRISKLOG_PLATFORM_ID}
-        ORDER BY postCount DESC
-        LIMIT ${limit} OFFSET ${offset}
-        `,
-        {
-          type: QueryTypes.SELECT
-        }
-      );
+      const where = {};
+
+      const intCursor = parseInt(cursor, 10);
+
+      if (intCursor > 0) {
+        where["id"] = {
+          [Op.lt]: intCursor
+        };
+      }
+
+      const recommenders = await db.User.findAll({
+        where,
+        attributes: {
+          include: [
+            [
+              literal(
+                "(SELECT COUNT(*) FROM Posts WHERE UserId = User.id AND deletedAt is NULL)"
+              ),
+              "postCount"
+            ]
+          ]
+        },
+        include: [
+          {
+            model: db.Platform,
+            as: "Platform",
+            where: {
+              id: FRISKLOG_PLATFORM_ID
+            }
+          },
+          {
+            model: db.User,
+            as: "Followers"
+          }
+        ],
+        order: [[literal("postCount"), "DESC"]],
+        limit
+        // raw: true
+        // nest: true
+      });
+
+      return recommenders.map(recommender => recommender.toJSON());
     },
     /**
      * 사용자 상세 조회
@@ -84,6 +108,10 @@ export default {
           {
             model: db.Post,
             as: "Posts"
+          },
+          {
+            model: db.User,
+            as: "Followers"
           }
         ]
       });

@@ -15,7 +15,7 @@ export default {
         `
         SELECT c.id, c.content, COUNT(*) as useCount
         FROM Categories AS c
-        JOIN PostCategory AS p 
+        JOIN PostCategories AS p 
         ON c.id = p.CategoryId
         GROUP BY c.id
         HAVING useCount > 0 
