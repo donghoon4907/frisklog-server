@@ -134,6 +134,8 @@ export default {
     followers: async (_, args, { db }) => {
       const { cursor = "0", limit, userId } = args;
 
+      const where = {};
+
       const intCursor = parseInt(cursor, 10);
 
       if (cursor > 0) {
@@ -172,6 +174,8 @@ export default {
      */
     followings: async (_, args, { db }) => {
       const { cursor = "0", limit, userId } = args;
+
+      const where = {};
 
       const intCursor = parseInt(cursor, 10);
 

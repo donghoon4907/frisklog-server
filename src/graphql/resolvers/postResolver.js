@@ -77,7 +77,7 @@ export default {
         };
       }
 
-      const posts = db.Post.findAll({
+      const posts = await db.Post.findAll({
         where,
         include: [
           {
