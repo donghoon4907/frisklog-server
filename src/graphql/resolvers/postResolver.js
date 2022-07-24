@@ -19,15 +19,28 @@ export default {
      * @param {string?} args.searchKeyword 검색어
      * @param {string?} args.userId        사용자 ID
      * @param {string?} args.isLike        내가 좋아요한 포스트 여부(마이페이지에서만 사용, userId 필요)
+     * @param {string?} args.isFollowing   내가 팔로잉한 포스트 여부(userId 필요)
      */
     posts: async (_, args, { db }) => {
-      const { cursor = "0", limit, searchKeyword, userId, isLike } = args;
+      const {
+        cursor = "0",
+        limit,
+        searchKeyword,
+        userId,
+        isLike,
+        isFollowing
+      } = args;
 
       const where = {};
 
       const likers = {
         model: db.User,
         as: "Likers"
+      };
+
+      const followers = {
+        model: db.User,
+        as: "Followers"
       };
 
       const intCursor = parseInt(cursor, 10);
@@ -56,6 +69,14 @@ export default {
         };
       }
 
+      if (isFollowing) {
+        delete where["UserId"];
+
+        followers["where"] = {
+          id: userId
+        };
+      }
+
       const posts = db.Post.findAll({
         where,
         include: [
@@ -64,7 +85,8 @@ export default {
             include: [
               {
                 model: db.Platform
-              }
+              },
+              followers
             ]
           },
           {

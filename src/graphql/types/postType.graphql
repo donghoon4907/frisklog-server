@@ -17,6 +17,7 @@ type Query {
     searchKeyword: String
     userId: String
     isLike: Boolean
+    isFollowing: Boolean
   ): [Post!]!
 
   post(id: String!): Post!
