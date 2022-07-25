@@ -15,13 +15,8 @@ type User {
   Followers: [User!]! # 사용자의 팔로워 목록
 }
 
-type UserList {
-  rows: [User!]!
-  count: Int!
-}
-
 type Query {
-  users(offset: Int, limit: Int!, order: String): UserList!
+  users(cursor: String, limit: Int!): [User!]!
 
   recommenders(cursor: String, limit: Int!): [User!]!
 

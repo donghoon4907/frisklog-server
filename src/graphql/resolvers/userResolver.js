@@ -20,27 +20,37 @@ export default {
     /**
      * 사용자 검색
      *
-     * @param {number?} args.offset 건너뛸 개수
-     * @param {number}  args.limit 검색결과 개수
-     * @param {string?} args.order 정렬조건
+     * @param {string?} args.cursor 커서
+     * @param {number}  args.limit  요청 목록의 수
      */
     users: async (_, args, { db }) => {
-      const { offset = 0, limit, order = "createdAt_DESC" } = args;
+      const { cursor = "0", limit } = args;
 
-      return db.User.findAndCountAll({
-        where: {
-          PlatformId: FRISKLOG_PLATFORM_ID
-        },
+      const where = {
+        PlatformId: FRISKLOG_PLATFORM_ID
+      };
+
+      const intCursor = parseInt(cursor, 10);
+
+      if (intCursor > 0) {
+        where["id"] = {
+          [db.Sequelize.Op.lt]: intCursor
+        };
+      }
+
+      const users = await db.User.findAll({
+        where,
         include: [
           {
             model: db.Post,
             as: "Posts"
           }
         ],
-        order: [order.split("_")],
-        limit,
-        offset
+        order: [["id", "DESC"]],
+        limit
       });
+
+      return users;
     },
     /**
      * 추천 사용자 검색
