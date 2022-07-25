@@ -6,18 +6,8 @@ type Comment {
   updatedAt: String!
 }
 
-type CommentList {
-  rows: [Comment!]!
-  count: Int!
-}
-
 type Query {
-  comments(
-    offset: Int
-    limit: Int!
-    order: String
-    postId: String
-  ): CommentList!
+  comments(cursor: String, limit: Int!, postId: String!): [Comment]!
 }
 
 type Mutation {

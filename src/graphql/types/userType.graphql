@@ -1,7 +1,7 @@
 type User {
   id: ID!
   nickname: String!
-  email: String!
+  # email: String!
   isMaster: Boolean!
   avatar: String
   token: String

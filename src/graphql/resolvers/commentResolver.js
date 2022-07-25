@@ -1,4 +1,5 @@
 import { frisklogGraphQLError } from "../../module/http";
+
 import {
   COMMENT_NOT_FOUND,
   COMMENT_CREATE_ERROR
@@ -11,21 +12,26 @@ export default {
     /**
      * 댓글 검색
      *
-     * @param {number?} args.offset 건너뛸 개수
+     * @param {string?} args.cursor 커서
      * @param {number}  args.limit  검색결과 개수
-     * @param {string?} args.order  정렬조건
-     * @param {string?} args.postId 게시물 ID
+     * @param {string}  args.postId 게시물 ID
      */
     comments: async (_, args, { db }) => {
-      const { offset = 0, limit, order = "createdAt_DESC", postId } = args;
+      const { cursor = "0", limit, postId } = args;
 
-      const where = {};
+      const where = {
+        PostId: postId
+      };
 
-      if (postId) {
-        where["PostId"] = postId;
+      const intCursor = parseInt(cursor, 10);
+
+      if (intCursor > 0) {
+        where["id"] = {
+          [db.Sequelize.Op.lt]: intCursor
+        };
       }
 
-      return db.Comment.findAndCountAll({
+      const comments = await db.Comment.findAll({
         where,
         include: [
           {
@@ -37,17 +43,18 @@ export default {
             ]
           }
         ],
-        order: [order.split("_")],
-        limit,
-        offset
+        order: [["id", "DESC"]],
+        limit
       });
+
+      return comments;
     }
   },
   Mutation: {
     /**
      * 댓글 등록
      *
-     * @param {number} args.postId 게시물 ID
+     * @param {string} args.postId  게시물 ID
      * @param {string} args.content 내용
      */
     addComment: async (_, args, { request, isAuthenticated, db }) => {
@@ -80,14 +87,13 @@ export default {
     /**
      * 댓글 수정
      *
-     * @param {string?} args.id 댓글 ID
-     * @param {string?} args.content 내용
-     * @param {boolean?} args.isDev 개발 여부
+     * @param {string} args.id      댓글 ID
+     * @param {string} args.content 내용
      */
     updateComment: async (_, args, { request, isAuthenticated, db }) => {
-      const { id, content, isDev } = args;
+      const { id, content } = args;
 
-      const me = await isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request });
 
       const comment = await db.Comment.findByPk(id);
 
@@ -109,13 +115,12 @@ export default {
     /**
      * 댓글 삭제
      *
-     * @param {string?} args.id 게시물 ID
-     * @param {boolean?} args.isDev 개발 여부
+     * @param {string} args.id 게시물 ID
      */
     deleteComment: async (_, args, { request, isAuthenticated, db }) => {
-      const { id, isDev } = args;
+      const { id } = args;
 
-      const me = await isAuthenticated({ request }, isDev);
+      const me = await isAuthenticated({ request });
 
       const comment = await db.Comment.findByPk(id);
 
