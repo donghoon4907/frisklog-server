@@ -1,4 +1,6 @@
 import { literal, Op } from "sequelize";
+import axios from "axios";
+
 import { frisklogGraphQLError } from "../../module/http";
 import { generateToken, getToken, refreshToken } from "../../module/token";
 import {
@@ -11,9 +13,7 @@ import {
 } from "../../config/message/user";
 import { WRONG_AUTH } from "../../config";
 import { sendMail } from "../../module/mail";
-
-// 플랫폼 ID
-const FRISKLOG_PLATFORM_ID = parseInt(process.env.PLATFORM_ID, 10);
+import { HOME_PLATFORM_ID, GITHUB_PLATFORM_ID } from "../../module/constants";
 
 export default {
   Query: {
@@ -27,7 +27,7 @@ export default {
       const { cursor = "0", limit } = args;
 
       const where = {
-        PlatformId: FRISKLOG_PLATFORM_ID
+        PlatformId: HOME_PLATFORM_ID
       };
 
       const intCursor = parseInt(cursor, 10);
@@ -88,7 +88,7 @@ export default {
             model: db.Platform,
             as: "Platform",
             where: {
-              id: FRISKLOG_PLATFORM_ID
+              id: HOME_PLATFORM_ID
             }
           },
           {
@@ -227,7 +227,7 @@ export default {
       const { email } = args;
 
       const user = await db.User.findOne({
-        where: { email, PlatformId: FRISKLOG_PLATFORM_ID }
+        where: { email, PlatformId: HOME_PLATFORM_ID }
       });
 
       if (user === null) {
@@ -260,7 +260,7 @@ export default {
       const { email, token } = args;
 
       const user = await db.User.findOne({
-        where: { email, token, PlatformId: FRISKLOG_PLATFORM_ID }
+        where: { email, token, PlatformId: HOME_PLATFORM_ID }
       });
 
       if (user === null) {
@@ -295,6 +295,52 @@ export default {
       return user;
     },
     /**
+     * Github 로그인
+     *
+     * @param {string} args.code
+     */
+    logInWithGithub: async (_, args, { db }) => {
+      const { code } = args;
+
+      try {
+        const { data } = await axios.post(
+          "https://github.com/login/oauth/access_token",
+          {
+            client_id: process.env.GITHUB_CLIENT_ID,
+            client_secret: process.env.GITHUB_CLIENT_SECRET,
+            code
+          }
+        );
+
+        const fullStrToken = data.split("&")[0];
+
+        const accessToken = fullStrToken.split("=")[1];
+
+        const userInfo = await axios.get("https://api.github.com/user", {
+          headers: {
+            authorization: `token ${accessToken}`
+          }
+        });
+
+        const { login } = userInfo.data;
+
+        // 얻어온 데이터를 어떻게 DB에 저장할 지 논의 필요
+
+        // const [user] = await db.User.findOrCreate({
+        //   where: {
+        //     nickname: login,
+        //     PlatformId: GITHUB_PLATFORM_ID
+        //   }
+        // });
+
+        // user["token"] = generateToken(user);
+
+        // return user;
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    /**
      * 사용자 등록
      *
      * @param {string}  args.email    이메일
@@ -307,7 +353,7 @@ export default {
       const user = await db.User.findOne({
         where: {
           [db.Sequelize.Op.or]: [{ email }, { nickname }],
-          PlatformId: FRISKLOG_PLATFORM_ID
+          PlatformId: HOME_PLATFORM_ID
         }
       });
 
@@ -323,7 +369,7 @@ export default {
         email,
         nickname,
         avatar,
-        PlatformId: FRISKLOG_PLATFORM_ID
+        PlatformId: HOME_PLATFORM_ID
       });
 
       if (createdUser === null) {
@@ -353,7 +399,7 @@ export default {
         // 수정할 별명이 현재 별명과 다른 경우
         if (nickname !== me.nickname) {
           const user = await db.User.findOne({
-            where: { nickname, PlatformId: FRISKLOG_PLATFORM_ID }
+            where: { nickname, PlatformId: HOME_PLATFORM_ID }
           });
 
           if (user !== null) {
