@@ -16,12 +16,12 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         comment: "도메인경로"
-      },
-      storageUrl: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        comment: "저장소경로"
       }
+      // storageUrl: {
+      //   type: DataTypes.STRING,
+      //   allowNull: false,
+      //   comment: "저장소경로"
+      // }
     },
     {
       charset: "utf8",

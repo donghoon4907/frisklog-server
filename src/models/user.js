@@ -1,4 +1,5 @@
 import { withTimezone } from "../module/moment";
+import { DEFAULT_AVATAR } from "../module/constants";
 
 export default (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -19,11 +20,6 @@ export default (sequelize, DataTypes) => {
         allowNull: true,
         comment: "블로그주소"
       },
-      // password: {
-      //   type: DataTypes.STRING,
-      //   allowNull: true,
-      //   comment: "암호"
-      // },
       isMaster: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
@@ -39,7 +35,7 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         comment: "프로필사진",
-        defaultValue: "/avatar.png"
+        defaultValue: DEFAULT_AVATAR
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -60,6 +56,18 @@ export default (sequelize, DataTypes) => {
       paranoid: true
     }
   );
+
+  User.beforeUpdate(user => {
+    const domainUrl = process.env.BACKEND_ROOT;
+
+    const { avatar } = user;
+
+    const hasDomain = avatar.includes(domainUrl);
+
+    if (!hasDomain) {
+      user.avatar = domainUrl + avatar;
+    }
+  });
 
   User.associate = db => {
     db.User.belongsTo(db.Platform);
