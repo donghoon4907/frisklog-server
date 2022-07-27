@@ -8,7 +8,6 @@ import {
   USER_USING_EMAIL,
   USER_USING_NICKNAME,
   USER_MISMATCH_TOKEN,
-  USER_CREATE_ERROR,
   EMAIL_SEND_ERROR
 } from "../../config/message/user";
 import { WRONG_AUTH } from "../../config";
@@ -365,20 +364,12 @@ export default {
         }
       }
 
-      const createdUser = await db.User.create({
+      await db.User.create({
         email,
         nickname,
         avatar,
         PlatformId: HOME_PLATFORM_ID
       });
-
-      if (createdUser === null) {
-        frisklogGraphQLError(USER_CREATE_ERROR, {
-          status: 403
-        });
-      }
-
-      await createdUser.update({ link: `/user/${createdUser.id}` });
 
       return true;
     },

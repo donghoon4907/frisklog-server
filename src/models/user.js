@@ -1,5 +1,7 @@
 import { withTimezone } from "../module/moment";
 import { DEFAULT_AVATAR } from "../module/constants";
+import { frisklogGraphQLError } from "../module/http";
+import { USER_CREATE_ERROR } from "../config/message/user";
 
 export default (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -56,6 +58,16 @@ export default (sequelize, DataTypes) => {
       paranoid: true
     }
   );
+
+  User.afterCreate(async user => {
+    if (user === null) {
+      frisklogGraphQLError(USER_CREATE_ERROR, {
+        status: 403
+      });
+    }
+
+    await user.update({ link: `/user/${user.id}` });
+  });
 
   User.beforeUpdate(user => {
     const domainUrl = process.env.BACKEND_ROOT;
