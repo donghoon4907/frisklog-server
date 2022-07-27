@@ -59,25 +59,23 @@ export default (sequelize, DataTypes) => {
     }
   );
 
-  User.afterCreate(async user => {
+  User.afterCreate(async (user, { transaction }) => {
     if (user === null) {
       frisklogGraphQLError(USER_CREATE_ERROR, {
         status: 403
       });
     }
 
-    await user.update({ link: `/user/${user.id}` });
+    await user.update({ link: `/user/${user.id}` }, { transaction });
   });
 
   User.beforeUpdate(user => {
-    const domainUrl = process.env.BACKEND_ROOT;
-
     const { avatar } = user;
 
-    const hasDomain = avatar.includes(domainUrl);
+    const hasDomain = avatar.includes("http");
 
     if (!hasDomain) {
-      user.avatar = domainUrl + avatar;
+      user.avatar = process.env.BACKEND_ROOT + avatar;
     }
   });
 

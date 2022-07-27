@@ -321,20 +321,21 @@ export default {
           }
         });
 
-        const { login } = userInfo.data;
+        const { login, avatar_url } = userInfo.data;
 
-        // 얻어온 데이터를 어떻게 DB에 저장할 지 논의 필요
+        const [user] = await db.User.findOrCreate({
+          where: {
+            nickname: login,
+            PlatformId: GITHUB_PLATFORM_ID
+          },
+          defaults: {
+            avatar: avatar_url
+          }
+        });
 
-        // const [user] = await db.User.findOrCreate({
-        //   where: {
-        //     nickname: login,
-        //     PlatformId: GITHUB_PLATFORM_ID
-        //   }
-        // });
+        user["token"] = generateToken(user);
 
-        // user["token"] = generateToken(user);
-
-        // return user;
+        return user;
       } catch (e) {
         console.log(e);
       }

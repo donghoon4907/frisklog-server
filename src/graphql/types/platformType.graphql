@@ -3,5 +3,4 @@ type Platform {
   platformName: String!
   logoUrl: String
   domainUrl: String
-  storageUrl: String
 }
