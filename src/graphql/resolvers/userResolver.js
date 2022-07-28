@@ -85,10 +85,7 @@ export default {
         include: [
           {
             model: db.Platform,
-            as: "Platform",
-            where: {
-              id: HOME_PLATFORM_ID
-            }
+            as: "Platform"
           },
           {
             model: db.User,
