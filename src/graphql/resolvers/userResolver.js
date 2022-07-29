@@ -253,7 +253,7 @@ export default {
      * @param {string} args.token 인증코드
      */
     verifyToken: async (_, args, { db }) => {
-      const { email, token } = args;
+      const { email, token, keep } = args;
 
       const user = await db.User.findOne({
         where: { email, token, PlatformId: HOME_PLATFORM_ID }
@@ -265,7 +265,7 @@ export default {
         });
       }
 
-      user["token"] = generateToken(user);
+      user["token"] = generateToken(user, keep ? null : "3h");
 
       return user;
     },

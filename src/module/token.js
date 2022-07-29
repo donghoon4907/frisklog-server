@@ -2,12 +2,18 @@ import jwt from "jsonwebtoken";
 
 const jwtSecret = process.env.JWT_SECRET;
 
-const tokenConfig = {
-  expiresIn: "1h"
-};
+export const generateToken = (
+  { id, nickname, avatar, isMaster },
+  expiresIn
+) => {
+  const tokenConfig = {};
 
-export const generateToken = ({ id, nickname, avatar, email, isMaster }) =>
-  jwt.sign({ id, nickname, avatar, email, isMaster }, jwtSecret, tokenConfig);
+  if (expiresIn) {
+    tokenConfig.expiresIn = expiresIn;
+  }
+
+  return jwt.sign({ id, nickname, avatar, isMaster }, jwtSecret, tokenConfig);
+};
 
 export const getToken = req => {
   const authorization = req.headers.get("authorization");

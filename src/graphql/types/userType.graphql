@@ -30,7 +30,7 @@ type Query {
 type Mutation {
   logIn(email: String!): Boolean!
 
-  verifyToken(email: String!, token: String!): User!
+  verifyToken(email: String!, token: String!, keep: Boolean!): User!
 
   logInWithGoogle(email: String!, nickname: String!): User!
 
