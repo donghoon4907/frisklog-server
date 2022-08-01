@@ -79,6 +79,33 @@ export default (sequelize, DataTypes) => {
     }
   });
 
+  User.scopes = db => {
+    db.User.addScope("posts", {
+      include: [
+        {
+          model: db.Post,
+          as: "Posts"
+        }
+      ]
+    });
+    db.User.addScope("followers", {
+      include: [
+        {
+          model: db.User,
+          as: "Followers"
+        }
+      ]
+    });
+    db.User.addScope("platform", {
+      include: [
+        {
+          model: db.Platform,
+          as: "Platform"
+        }
+      ]
+    });
+  };
+
   User.associate = db => {
     db.User.belongsTo(db.Platform);
     db.User.hasMany(db.Post, { as: "Posts", onDelete: "cascade" });

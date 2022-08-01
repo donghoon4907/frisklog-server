@@ -31,6 +31,10 @@ Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }
+
+  if (db[modelName].scopes) {
+    db[modelName].scopes(db);
+  }
 });
 
 db.sequelize = sequelize;

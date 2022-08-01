@@ -34,6 +34,38 @@ export default (sequelize, DataTypes) => {
       paranoid: true
     }
   );
+  Post.scopes = db => {
+    db.Post.addScope("user", {
+      include: [
+        {
+          model: db.User,
+          include: [
+            {
+              model: db.Platform
+            }
+          ]
+        }
+      ]
+    });
+
+    db.Post.addScope("likers", {
+      include: [
+        {
+          model: db.User,
+          as: "Likers"
+        }
+      ]
+    });
+
+    db.Post.addScope("categories", {
+      include: [
+        {
+          model: db.Category,
+          as: "Categories"
+        }
+      ]
+    });
+  };
 
   Post.associate = db => {
     db.Post.belongsTo(db.User, { onDelete: "cascade" });

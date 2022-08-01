@@ -25,9 +25,7 @@ export default {
     users: async (_, args, { db }) => {
       const { cursor = "0", limit } = args;
 
-      const where = {
-        PlatformId: HOME_PLATFORM_ID
-      };
+      const where = {};
 
       const intCursor = parseInt(cursor, 10);
 
@@ -37,14 +35,8 @@ export default {
         };
       }
 
-      const users = await db.User.findAll({
+      const users = await db.User.scope(["posts"]).findAll({
         where,
-        include: [
-          {
-            model: db.Post,
-            as: "Posts"
-          }
-        ],
         order: [["id", "DESC"]],
         limit
       });
@@ -70,7 +62,10 @@ export default {
         };
       }
 
-      const recommenders = await db.User.findAll({
+      const recommenders = await db.User.scope([
+        "platform",
+        "followers"
+      ]).findAll({
         where,
         attributes: {
           include: [
@@ -82,16 +77,6 @@ export default {
             ]
           ]
         },
-        include: [
-          {
-            model: db.Platform,
-            as: "Platform"
-          },
-          {
-            model: db.User,
-            as: "Followers"
-          }
-        ],
         order: [[literal("postCount"), "DESC"]],
         limit
         // raw: true
@@ -108,18 +93,8 @@ export default {
     user: async (_, args, { db }) => {
       const { id } = args;
 
-      const user = await db.User.findOne({
-        where: { id },
-        include: [
-          {
-            model: db.Post,
-            as: "Posts"
-          },
-          {
-            model: db.User,
-            as: "Followers"
-          }
-        ]
+      const user = await db.User.scope(["posts", "followers"]).findOne({
+        where: { id }
       });
 
       if (user === null) {

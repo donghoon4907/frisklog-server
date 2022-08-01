@@ -77,7 +77,7 @@ export default {
         };
       }
 
-      const posts = await db.Post.findAll({
+      const posts = await db.Post.scope(["categories"]).findAll({
         where,
         include: [
           {
@@ -88,10 +88,6 @@ export default {
               },
               followers
             ]
-          },
-          {
-            model: db.Category,
-            as: "Categories"
           },
           likers
         ],
@@ -145,17 +141,12 @@ export default {
     post: async (_, args, { db }) => {
       const { id } = args;
 
-      const post = await db.Post.findOne({
-        where: { id },
-        include: [
-          {
-            model: db.User
-          },
-          {
-            model: db.User,
-            as: "Likers"
-          }
-        ]
+      const post = await db.Post.scope([
+        "user",
+        "categories",
+        "likers"
+      ]).findOne({
+        where: { id }
       });
 
       if (post === null) {

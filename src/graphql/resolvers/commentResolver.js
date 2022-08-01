@@ -31,18 +31,8 @@ export default {
         };
       }
 
-      const comments = await db.Comment.findAll({
+      const comments = await db.Comment.scope("user").findAll({
         where,
-        include: [
-          {
-            model: db.User,
-            include: [
-              {
-                model: db.Platform
-              }
-            ]
-          }
-        ],
         order: [["id", "DESC"]],
         limit
       });
