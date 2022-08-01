@@ -15,16 +15,44 @@ type User {
   Followers: [User!]! # 사용자의 팔로워 목록
 }
 
-type Query {
-  users(cursor: String, limit: Int!): [User!]!
+type UserEdge {
+  node: User!
+  cursor: String!
+}
 
-  recommenders(cursor: String, limit: Int!): [User!]!
+type UserPaginate {
+  totalCount: Int!
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+}
+
+type Query {
+  #기존 users(cursor: String, limit: Int!): [User!]!
+
+  users(
+    before: String
+    after: String
+    limit: Int!
+    order: [[String]]
+  ): UserPaginate!
+
+  recommenders(limit: Int!): [User!]!
 
   user(id: String!): User!
 
-  followers(cursor: String, limit: Int!, userId: String!): [User!]!
+  followers(
+    offset: Int
+    limit: Int!
+    order: [[String]]
+    userId: String!
+  ): [User!]!
 
-  followings(cursor: String, limit: Int!, userId: String!): [User!]!
+  followings(
+    offset: Int
+    limit: Int!
+    order: [[String]]
+    userId: String!
+  ): [User!]!
 }
 
 type Mutation {

@@ -19,54 +19,28 @@ export default {
     /**
      * 사용자 검색
      *
-     * @param {string?} args.cursor 커서
-     * @param {number}  args.limit  요청 목록의 수
+     * @param {string?}     args.before 커서 기준 이전
+     * @param {string?}     args.after  커서 기준 이후
+     * @param {number}      args.limit  요청 목록의 수
+     * @param {string[][]}  args.order  정렬
      */
     users: async (_, args, { db }) => {
-      const { cursor = "0", limit } = args;
+      const scope = ["posts"];
 
-      const where = {};
-
-      const intCursor = parseInt(cursor, 10);
-
-      if (intCursor > 0) {
-        where["id"] = {
-          [db.Sequelize.Op.lt]: intCursor
-        };
-      }
-
-      const users = await db.User.scope(["posts"]).findAll({
-        where,
-        order: [["id", "DESC"]],
-        limit
-      });
-
-      return users;
+      return db.User.paginate({ ...args, scope });
     },
     /**
      * 추천 사용자 검색
      *
-     * @param {string?} args.cursor 커서
      * @param {number}  args.limit  요청 목록의 수
      */
     recommenders: async (_, args, { db }) => {
-      const { cursor = "0", limit } = args;
-
-      const where = {};
-
-      const intCursor = parseInt(cursor, 10);
-
-      if (intCursor > 0) {
-        where["id"] = {
-          [Op.lt]: intCursor
-        };
-      }
+      const { limit } = args;
 
       const recommenders = await db.User.scope([
         "platform",
         "followers"
       ]).findAll({
-        where,
         attributes: {
           include: [
             [
@@ -83,12 +57,12 @@ export default {
         // nest: true
       });
 
-      return recommenders.map(recommender => recommender.toJSON());
+      return recommenders.map(r => r.toJSON());
     },
     /**
      * 사용자 상세 조회
      *
-     * @param {number} args.id 사용자 ID
+     * @param {string} args.id 사용자 ID
      */
     user: async (_, args, { db }) => {
       const { id } = args;
@@ -108,22 +82,13 @@ export default {
     /**
      * 팔로워 검색
      *
-     * @param {number?} args.cursor 커서
+     * @param {number?} args.offset 목록 시작 인덱스
      * @param {number}  args.limit  요청 목록의 수
+     * @param {number}  args.order  정렬
      * @param {string}  args.userId 사용자 ID
      */
     followers: async (_, args, { db }) => {
-      const { cursor = "0", limit, userId } = args;
-
-      const where = {};
-
-      const intCursor = parseInt(cursor, 10);
-
-      if (cursor > 0) {
-        where["id"] = {
-          [db.Sequelize.Op.lt]: intCursor
-        };
-      }
+      const { offset = 0, limit, order, userId } = args;
 
       const user = await db.User.findByPk(userId);
 
@@ -140,8 +105,9 @@ export default {
             model: db.Platform
           }
         ],
-        order: [["id", "DESC"]],
-        limit
+        order,
+        limit,
+        offset
       });
 
       return followers;
@@ -149,22 +115,13 @@ export default {
     /**
      * 팔로잉 검색
      *
-     * @param {number?} args.cursor 커서
+     * @param {number?} args.offset 목록 시작 인덱스
      * @param {number}  args.limit  요청 목록의 수
+     * @param {number}  args.order  정렬
      * @param {string}  args.userId 사용자 ID
      */
     followings: async (_, args, { db }) => {
-      const { cursor = "0", limit, userId } = args;
-
-      const where = {};
-
-      const intCursor = parseInt(cursor, 10);
-
-      if (cursor > 0) {
-        where["id"] = {
-          [db.Sequelize.Op.lt]: intCursor
-        };
-      }
+      const { offset = 0, limit, order, userId } = args;
 
       const user = await db.User.findByPk(userId);
 
@@ -181,8 +138,9 @@ export default {
             model: db.Platform
           }
         ],
-        order: [["id", "DESC"]],
-        limit
+        order,
+        limit,
+        offset
       });
 
       return followings;

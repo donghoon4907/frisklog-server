@@ -2,6 +2,7 @@ import { withTimezone } from "../module/moment";
 import { DEFAULT_AVATAR } from "../module/constants";
 import { frisklogGraphQLError } from "../module/http";
 import { USER_CREATE_ERROR } from "../config/message/user";
+import { connectCursorPaginate } from "../module/paginate";
 
 export default (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -122,6 +123,8 @@ export default (sequelize, DataTypes) => {
       foreignKey: "FollowerId"
     });
   };
+
+  User.paginate = connectCursorPaginate(User);
 
   return User;
 };
