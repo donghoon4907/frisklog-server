@@ -9,16 +9,28 @@ type Post {
   updatedAt: String!
 }
 
+type PostEdge {
+  node: Post!
+  cursor: String!
+}
+
+type PostPaginate {
+  totalCount: Int!
+  edges: [PostEdge!]!
+  pageInfo: PageInfo!
+}
+
 type Query {
   posts(
-    cursor: String
+    before: String
+    after: String
     limit: Int!
-    # order: String!
+    order: [[String]]
     searchKeyword: String
     userId: String
     isLike: Boolean
     isFollowing: Boolean
-  ): [Post!]!
+  ): PostPaginate!
 
   post(id: String!): Post!
 

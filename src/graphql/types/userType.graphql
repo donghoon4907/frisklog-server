@@ -27,8 +27,6 @@ type UserPaginate {
 }
 
 type Query {
-  #기존 users(cursor: String, limit: Int!): [User!]!
-
   users(
     before: String
     after: String

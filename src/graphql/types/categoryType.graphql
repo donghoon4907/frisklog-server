@@ -5,5 +5,5 @@ type Category {
 }
 
 type Query {
-  recommendCategories(offset: Int, limit: Int!): [Category!]!
+  recommendCategories(limit: Int!): [Category!]!
 }

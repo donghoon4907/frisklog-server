@@ -132,7 +132,6 @@ export default {
       }
 
       const followings = await user.getFollowings({
-        where,
         include: [
           {
             model: db.Platform

@@ -5,11 +5,10 @@ export default {
     /**
      * 추천 카테고리 검색
      *
-     * @param {number?} args.offset 건너뛸 개수
      * @param {number}  args.limit  검색결과 개수
      */
     recommendCategories: async (_, args, { db }) => {
-      const { offset = 0, limit } = args;
+      const { limit } = args;
 
       return db.sequelize.query(
         `
@@ -20,7 +19,7 @@ export default {
         GROUP BY c.id
         HAVING useCount > 0 
         ORDER BY useCount DESC
-        LIMIT ${limit} OFFSET ${offset}
+        LIMIT ${limit}
         `,
         {
           type: QueryTypes.SELECT

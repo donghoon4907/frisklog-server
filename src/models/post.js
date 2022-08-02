@@ -1,4 +1,5 @@
 import { withTimezone } from "../module/moment";
+import { connectCursorPaginate } from "../module/paginate";
 
 export default (sequelize, DataTypes) => {
   const Post = sequelize.define(
@@ -73,6 +74,8 @@ export default (sequelize, DataTypes) => {
     db.Post.belongsToMany(db.User, { through: "Likes", as: "Likers" });
     db.Post.belongsToMany(db.Category, { through: "PostCategories" });
   };
+
+  Post.paginate = connectCursorPaginate(Post);
 
   return Post;
 };
