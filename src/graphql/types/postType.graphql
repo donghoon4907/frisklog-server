@@ -32,9 +32,13 @@ type Query {
     isFollowing: Boolean
   ): PostPaginate!
 
-  post(id: String!): Post!
-
-  postsByCategory(content: String!, cursor: String, limit: Int!): [Post!]!
+  postsByCategory(
+    before: String
+    after: String
+    limit: Int!
+    order: [[String]]
+    content: String!
+  ): PostPaginate!
 }
 
 type Mutation {

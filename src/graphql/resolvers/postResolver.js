@@ -7,28 +7,31 @@ import {
 } from "../../config/message/post";
 import { CATEGORY_NOT_FOUND } from "../../config/message/category";
 import { WRONG_APPROACH } from "../../config/message";
+import RelayStyleCursorPagination from "../../module/paginate/cursor/relay";
 
 export default {
   Query: {
     /**
      * 게시물 검색
      *
-     * @param {string?} args.cursor        커서
      * @param {number}  args.limit         요청 목록의 수
-     * @param {string?} args.order         정렬
      * @param {string?} args.searchKeyword 검색어
      * @param {string?} args.userId        사용자 ID
      * @param {string?} args.isLike        내가 좋아요한 포스트 여부(마이페이지에서만 사용, userId 필요)
      * @param {string?} args.isFollowing   내가 팔로잉한 포스트 여부(userId 필요)
+     *
+     * @param {string?} args.before         커서기준 이전컨텐츠 요청
+     * @param {string?} args.after          커서기준 다음컨텐츠 요청
+     * @param {string?} args.order          정렬
      */
     posts: async (_, args, { db }) => {
       const {
-        cursor = "0",
         limit,
         searchKeyword,
         userId,
         isLike,
-        isFollowing
+        isFollowing,
+        ...other
       } = args;
 
       const where = {};
@@ -42,14 +45,6 @@ export default {
         model: db.User,
         as: "Followers"
       };
-
-      const intCursor = parseInt(cursor, 10);
-
-      if (intCursor > 0) {
-        where["id"] = {
-          [db.Sequelize.Op.lt]: intCursor
-        };
-      }
 
       if (searchKeyword) {
         where["content"] = {
@@ -77,8 +72,9 @@ export default {
         };
       }
 
-      const posts = await db.Post.scope(["categories"]).findAll({
-        where,
+      const helper = new RelayStyleCursorPagination({ ...other, where });
+
+      const commonOption = {
         include: [
           {
             model: db.User,
@@ -91,92 +87,34 @@ export default {
           },
           likers
         ],
-        order: [["id", "DESC"]],
-        limit
+        distinct: true
+      };
+
+      const totalCount = await db.Post.count({ ...commonOption, where });
+
+      const { rows, count } = await db.Post.scope([
+        "categories"
+      ]).findAndCountAll({
+        ...commonOption,
+        limit,
+        order: helper.order,
+        where: helper.where
       });
 
-      // 검색 시 history 추가
-      // if (category || searchKeyword) {
-      //   const param = {};
-
-      //   param.ip = await getIpClient();
-
-      //   if (searchKeyword) {
-      //     param["searchKeyword"] = searchKeyword;
-      //   }
-
-      //   if (category) {
-      //     param["category"] = category;
-      //   }
-
-      //   const from = moment();
-      //   from.set({ hour: 0, minute: 0, second: 0 });
-
-      //   const to = moment();
-      //   to.set({ hour: 23, minute: 59, second: 59 });
-
-      //   // 검색 이력 확인
-      //   const history = await db.History.findOne({
-      //     where: {
-      //       ...param,
-      //       createdAt: {
-      //         [db.Sequelize.Op.lt]: to,
-      //         [db.Sequelize.Op.gt]: from
-      //       }
-      //     }
-      //   });
-
-      //   if (history === null) {
-      //     await db.History.create(param);
-      //   }
-      // }
-
-      return posts;
-    },
-    /**
-     * 게시물 상세 조회(현재 미사용 중)
-     *
-     * @param {number} args.id 게시물 ID
-     */
-    post: async (_, args, { db }) => {
-      const { id } = args;
-
-      const post = await db.Post.scope([
-        "user",
-        "categories",
-        "likers"
-      ]).findOne({
-        where: { id }
-      });
-
-      if (post === null) {
-        frisklogGraphQLError(POST_NOT_FOUND, {
-          status: 403
-        });
-      }
-
-      return post;
+      return helper.builder(rows, count, totalCount);
     },
     /**
      * 카테고리별 게시물 검색
      *
-     * @param {string} args.content  카테고리명
-     * @param {string} args.cursor   포스트 커서
-     * @param {number} args.limit    포스트 요청 목록의 수
-     * @param {string} args.order    포스트 정렬
+     * @param {string} args.content 카테고리명
+     * @param {number} args.limit   포스트 요청 목록의 수
+     *
+     * @param {string?} args.before 커서기준 이전컨텐츠 요청
+     * @param {string?} args.after  커서기준 다음컨텐츠 요청
+     * @param {string?} args.order  정렬
      */
     postsByCategory: async (_, args, { db }) => {
-      const { content, cursor = "0", limit } = args;
-
-      const where = {};
-
-      const intCursor = parseInt(cursor, 10);
-
-      if (cursor > 0) {
-        where["id"] = {
-          [db.Sequelize.Op.lt]: intCursor
-        };
-      }
+      const { content, limit, ...other } = args;
 
       const category = await db.Category.findOne({ where: { content } });
 
@@ -186,8 +124,16 @@ export default {
         });
       }
 
-      return category.getPosts({
-        where,
+      const where = {};
+
+      const helper = new RelayStyleCursorPagination({ ...other, where });
+
+      const allPosts = await category.getPosts();
+
+      const totalCount = allPosts.length;
+
+      const posts = await category.getPosts({
+        where: helper.where,
         include: [
           {
             model: db.User,
@@ -206,9 +152,11 @@ export default {
             as: "Categories"
           }
         ],
-        order: [["id", "DESC"]],
+        order: helper.order,
         limit
       });
+
+      return helper.builder(posts, posts.length, totalCount);
     }
   },
   Mutation: {
@@ -374,3 +322,42 @@ export default {
     }
   }
 };
+
+/*
+
+// 검색 시 history 추가
+      if (category || searchKeyword) {
+        const param = {};
+
+        param.ip = await getIpClient();
+
+        if (searchKeyword) {
+          param["searchKeyword"] = searchKeyword;
+        }
+
+        if (category) {
+          param["category"] = category;
+        }
+
+        const from = moment();
+        from.set({ hour: 0, minute: 0, second: 0 });
+
+        const to = moment();
+        to.set({ hour: 23, minute: 59, second: 59 });
+
+        // 검색 이력 확인
+        const history = await db.History.findOne({
+          where: {
+            ...param,
+            createdAt: {
+              [db.Sequelize.Op.lt]: to,
+              [db.Sequelize.Op.gt]: from
+            }
+          }
+        });
+
+        if (history === null) {
+          await db.History.create(param);
+        }
+      }
+*/

@@ -7,7 +7,7 @@ export const mysqlConfig = {
     dialect: process.env.DB_TYPE,
     operatorsAliases: 0,
     timezone: "+09:00",
-    logging: false,
+    logging: true,
     dialectOptions: {
       dateStrings: true
     }

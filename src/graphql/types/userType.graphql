@@ -27,13 +27,6 @@ type UserPaginate {
 }
 
 type Query {
-  users(
-    before: String
-    after: String
-    limit: Int!
-    order: [[String]]
-  ): UserPaginate!
-
   recommenders(limit: Int!): [User!]!
 
   user(id: String!): User!

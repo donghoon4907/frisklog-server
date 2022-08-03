@@ -17,19 +17,6 @@ import { HOME_PLATFORM_ID, GITHUB_PLATFORM_ID } from "../../module/constants";
 export default {
   Query: {
     /**
-     * 사용자 검색
-     *
-     * @param {string?}     args.before 커서 기준 이전
-     * @param {string?}     args.after  커서 기준 이후
-     * @param {number}      args.limit  요청 목록의 수
-     * @param {string[][]}  args.order  정렬
-     */
-    users: async (_, args, { db }) => {
-      const scope = ["posts"];
-
-      return db.User.paginate({ ...args, scope });
-    },
-    /**
      * 추천 사용자 검색
      *
      * @param {number}  args.limit  요청 목록의 수
