@@ -20,7 +20,7 @@ type UserEdge {
   cursor: String!
 }
 
-type UserPaginate {
+type UserResponse {
   totalCount: Int!
   edges: [UserEdge!]!
   pageInfo: PageInfo!
@@ -39,11 +39,12 @@ type Query {
   ): [User!]!
 
   followings(
-    offset: Int
+    before: String
+    after: String
     limit: Int!
     order: [[String]]
-    userId: String!
-  ): [User!]!
+    nickname: String
+  ): UserResponse!
 }
 
 type Mutation {

@@ -14,7 +14,7 @@ type PostEdge {
   cursor: String!
 }
 
-type PostPaginate {
+type PostResponse {
   totalCount: Int!
   edges: [PostEdge!]!
   pageInfo: PageInfo!
@@ -30,7 +30,7 @@ type Query {
     userId: String
     isLike: Boolean
     isFollowing: Boolean
-  ): PostPaginate!
+  ): PostResponse!
 
   postsByCategory(
     before: String
@@ -38,7 +38,7 @@ type Query {
     limit: Int!
     order: [[String]]
     content: String!
-  ): PostPaginate!
+  ): PostResponse!
 }
 
 type Mutation {

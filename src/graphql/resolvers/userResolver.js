@@ -1,4 +1,4 @@
-import { literal, Op } from "sequelize";
+import { literal } from "sequelize";
 import axios from "axios";
 
 import { frisklogGraphQLError } from "../../module/http";
@@ -13,6 +13,7 @@ import {
 import { WRONG_AUTH } from "../../config";
 import { sendMail } from "../../module/mail";
 import { HOME_PLATFORM_ID, GITHUB_PLATFORM_ID } from "../../module/constants";
+import RelayStyleCursorPagination from "../../module/paginate/cursor/relay";
 
 export default {
   Query: {
@@ -102,34 +103,47 @@ export default {
     /**
      * 팔로잉 검색
      *
-     * @param {number?} args.offset 목록 시작 인덱스
-     * @param {number}  args.limit  요청 목록의 수
-     * @param {number}  args.order  정렬
-     * @param {string}  args.userId 사용자 ID
+     * @param {number}  args.limit    요청 목록의 수
+     * @param {number?} args.nickname 닉네임
+     *
+     * @param {string?} args.before   커서기준 이전컨텐츠 요청
+     * @param {string?} args.after    커서기준 다음컨텐츠 요청
+     * @param {string?} args.order    정렬
      */
-    followings: async (_, args, { db }) => {
-      const { offset = 0, limit, order, userId } = args;
+    followings: async (_, args, { db, request, isAuthenticated }) => {
+      const { limit, nickname, ...other } = args;
 
-      const user = await db.User.findByPk(userId);
+      const me = await isAuthenticated({ request });
 
-      if (user === null) {
-        frisklogGraphQLError(USER_NOT_FOUND, {
-          status: 403
-        });
+      const where = {};
+
+      if (nickname) {
+        where["nickname"] = nickname;
       }
 
-      const followings = await user.getFollowings({
-        include: [
-          {
-            model: db.Platform
-          }
-        ],
-        order,
-        limit,
-        offset
-      });
+      const helper = new RelayStyleCursorPagination({ ...other, where });
 
-      return followings;
+      const [total, cursors, followings] = await Promise.all([
+        me.getFollowings(),
+        me.getFollowings({ where: helper.where }),
+        me.getFollowings({
+          where: helper.where,
+          limit,
+          order: helper.order,
+          include: [
+            {
+              model: db.Post,
+              as: "Posts"
+            },
+            {
+              model: db.User,
+              as: "Followers"
+            }
+          ]
+        })
+      ]);
+
+      return helper.response(followings, cursors.length, total.length);
     }
   },
   Mutation: {

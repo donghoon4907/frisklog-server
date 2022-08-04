@@ -29,7 +29,7 @@ class RelayStyleCursorPagination {
     }
   }
 
-  builder(instances, cursorCount, totalCount) {
+  response(instances, cursorCount, totalCount) {
     if (this.before) {
       instances.reverse();
     }

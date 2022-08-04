@@ -20,9 +20,9 @@ export default {
      * @param {string?} args.isLike        내가 좋아요한 포스트 여부(마이페이지에서만 사용, userId 필요)
      * @param {string?} args.isFollowing   내가 팔로잉한 포스트 여부(userId 필요)
      *
-     * @param {string?} args.before         커서기준 이전컨텐츠 요청
-     * @param {string?} args.after          커서기준 다음컨텐츠 요청
-     * @param {string?} args.order          정렬
+     * @param {string?} args.before        커서기준 이전컨텐츠 요청
+     * @param {string?} args.after         커서기준 다음컨텐츠 요청
+     * @param {string?} args.order         정렬
      */
     posts: async (_, args, { db }) => {
       const {
@@ -78,6 +78,7 @@ export default {
         include: [
           {
             model: db.User,
+            required: true,
             include: [
               {
                 model: db.Platform
@@ -90,18 +91,17 @@ export default {
         distinct: true
       };
 
-      const totalCount = await db.Post.count({ ...commonOption, where });
+      const [totalCount, { rows, count }] = await Promise.all([
+        db.Post.count({ ...commonOption, where }),
+        db.Post.scope(["categories"]).findAndCountAll({
+          ...commonOption,
+          where: helper.where,
+          limit,
+          order: helper.order
+        })
+      ]);
 
-      const { rows, count } = await db.Post.scope([
-        "categories"
-      ]).findAndCountAll({
-        ...commonOption,
-        limit,
-        order: helper.order,
-        where: helper.where
-      });
-
-      return helper.builder(rows, count, totalCount);
+      return helper.response(rows, count, totalCount);
     },
     /**
      * 카테고리별 게시물 검색
@@ -128,35 +128,37 @@ export default {
 
       const helper = new RelayStyleCursorPagination({ ...other, where });
 
-      const allPosts = await category.getPosts();
+      const [total, cursors, posts] = await Promise.all([
+        category.getPosts(),
+        category.getPosts({
+          where: helper.where
+        }),
+        category.getPosts({
+          where: helper.where,
+          limit,
+          order: helper.order,
+          include: [
+            {
+              model: db.User,
+              include: [
+                {
+                  model: db.Platform
+                }
+              ]
+            },
+            {
+              model: db.User,
+              as: "Likers"
+            },
+            {
+              model: db.Category,
+              as: "Categories"
+            }
+          ]
+        })
+      ]);
 
-      const totalCount = allPosts.length;
-
-      const posts = await category.getPosts({
-        where: helper.where,
-        include: [
-          {
-            model: db.User,
-            include: [
-              {
-                model: db.Platform
-              }
-            ]
-          },
-          {
-            model: db.User,
-            as: "Likers"
-          },
-          {
-            model: db.Category,
-            as: "Categories"
-          }
-        ],
-        order: helper.order,
-        limit
-      });
-
-      return helper.builder(posts, posts.length, totalCount);
+      return helper.response(posts, cursors.length, total.length);
     }
   },
   Mutation: {
