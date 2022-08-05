@@ -1,4 +1,4 @@
-import { literal } from "sequelize";
+import { literal, Op } from "sequelize";
 import axios from "axios";
 
 import { frisklogGraphQLError } from "../../module/http";
@@ -118,13 +118,15 @@ export default {
       const where = {};
 
       if (nickname) {
-        where["nickname"] = nickname;
+        where["nickname"] = {
+          [db.Sequelize.Op.like]: `%${nickname}%`
+        };
       }
 
       const helper = new RelayStyleCursorPagination({ ...other, where });
 
       const [total, cursors, followings] = await Promise.all([
-        me.getFollowings(),
+        me.getFollowings({ where }),
         me.getFollowings({ where: helper.where }),
         me.getFollowings({
           where: helper.where,
