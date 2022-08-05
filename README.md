@@ -8,7 +8,9 @@ Frisklog는 여러 사용자들이 작성한 글을 공유할 수 있도록 만�
 
 - Sequelize(ORM) Best Practice
 - GraphQL-Yoga v2 Best Practice
-- A simple build method using Babel
+- Offset-limit / Cursor-based Pagination
+- Nodemailer tutorial
+-
 
 ## 데이터베이스 구조
 
@@ -16,7 +18,7 @@ Frisklog는 여러 사용자들이 작성한 글을 공유할 수 있도록 만�
 
 ## 환경변수 설정하기
 
-`.env.{development|production}` 파일을 구성하여 환경 변수를 설정하세요.
+`.env` 파일을 구성하여 환경 변수를 설정하세요. 모든 변수들은 `.env.example`에서 확인할 수 있어요.
 
 - `DB_USERNAME` - DB 사용자명
 - `DB_PASSWORD` - DB 사용자 암호
@@ -25,6 +27,11 @@ Frisklog는 여러 사용자들이 작성한 글을 공유할 수 있도록 만�
 - `DB_TYPE` - DB 종류 `ex) mysql`
 - `PORT` - 서버 포트 `ex) 4000`
 - `JWT_SECRET` - 토큰 시크릿 코드
+- `EMAIL_ID` - 메일에 사용할 이메일
+- `EMAIL_PASSWORD` - 메일에 사용할 암호, 구글의 경우 APP 발급 튜토리얼 숙지 필요
+- `GITHUB_CLIENT_ID` - GitHub OAuth App Client ID
+- `GITHUB_CLIENT_SECRET` - GitHub OAuth App Secret
+- `BACKEND_ROOT` - 서버 도메인
 
 ## API
 
@@ -42,15 +49,26 @@ Frisklog에서 사용된 API를 테스트할 수 있도록 AWS EC2를 사용한 
 
 ```graphql
 query {
-  users(offset: 0, limit: 30. orderBy: "createdAt_ASC") {
-    rows {
-      id
-      email
-      nickname
-      avatar
-      createdAt
-    },
-    count
+  posts(limit: 30, searchKeyword: "graphql") {
+    totalCount
+    edges {
+      node {
+        id
+        content
+        createdAt
+
+        User {
+          nickname
+        }
+      }
+      cursor
+    }
+    pageInfo {
+      startCursor
+      endCursor
+      hasPreviousPage
+      hasNextPage
+    }
   }
 }
 ```
@@ -77,6 +95,6 @@ mutation {
 
 ## To-Be
 
-- REST API 추가
-- 조회수 증가
-- 파일 업로드(2022-06-07 fin)
+- Convert REST API With Redux
+- Direct Message With Subscription
+- Set DB Index
