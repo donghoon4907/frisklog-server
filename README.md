@@ -41,9 +41,8 @@ Frisklog에서 사용된 API를 테스트할 수 있도록 AWS EC2를 사용한 
 
 **Params**
 
-- `offset` **{Int?}**: 데이터를 가져오기 시작할 위치
-- `limit` **{Int?}**: 호출 시 데이터양
-- `order` **{String?}**: 정렬 `ex) createdAt_DESC`
+- `limit` - 요청 데이터의 수
+- `searchKeyword` - 검색어
 
 **Example**
 
