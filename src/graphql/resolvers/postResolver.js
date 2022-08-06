@@ -22,7 +22,7 @@ export default {
      *
      * @param {string?} args.before        커서기준 이전컨텐츠 요청
      * @param {string?} args.after         커서기준 다음컨텐츠 요청
-     * @param {string?} args.order         정렬
+     * @param {string[][]} args.order         정렬
      */
     posts: async (_, args, { db }) => {
       const {

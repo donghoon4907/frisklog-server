@@ -6,38 +6,39 @@ import {
 } from "../../config/message/comment";
 import { POST_NOT_FOUND } from "../../config/message/post";
 import { WRONG_APPROACH } from "../../config/message";
+import RelayStyleCursorPagination from "../../module/paginate/cursor/relay";
 
 export default {
   Query: {
     /**
      * 댓글 검색
      *
-     * @param {string?} args.cursor 커서
-     * @param {number}  args.limit  검색결과 개수
+     * @param {number}  args.limit  요청 목록의 수
      * @param {string}  args.postId 게시물 ID
+     *
+     * @param {string?} args.before        커서기준 이전컨텐츠 요청
+     * @param {string?} args.after         커서기준 다음컨텐츠 요청
+     * @param {string[][]} args.order         정렬
      */
     comments: async (_, args, { db }) => {
-      const { cursor = "0", limit, postId } = args;
+      const { limit, postId, ...other } = args;
 
       const where = {
         PostId: postId
       };
 
-      const intCursor = parseInt(cursor, 10);
+      const helper = new RelayStyleCursorPagination({ ...other, where });
 
-      if (intCursor > 0) {
-        where["id"] = {
-          [db.Sequelize.Op.lt]: intCursor
-        };
-      }
+      const [totalCount, { rows, count }] = await Promise.all([
+        db.Comment.count({ where }),
+        db.Comment.scope(["user"]).findAndCountAll({
+          where: helper.where,
+          limit,
+          order: helper.order
+        })
+      ]);
 
-      const comments = await db.Comment.scope("user").findAll({
-        where,
-        order: [["id", "DESC"]],
-        limit
-      });
-
-      return comments;
+      return helper.response(rows, count, totalCount);
     }
   },
   Mutation: {

@@ -6,8 +6,25 @@ type Comment {
   updatedAt: String!
 }
 
+type CommentEdge {
+  node: Comment!
+  cursor: String!
+}
+
+type CommentResponse {
+  totalCount: Int!
+  edges: [CommentEdge!]!
+  pageInfo: PageInfo!
+}
+
 type Query {
-  comments(cursor: String, limit: Int!, postId: String!): [Comment]!
+  comments(
+    before: String
+    after: String
+    limit: Int!
+    order: [[String]]
+    postId: String!
+  ): CommentResponse!
 }
 
 type Mutation {
