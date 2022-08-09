@@ -25,10 +25,7 @@ export default {
     recommenders: async (_, args, { db }) => {
       const { limit } = args;
 
-      const recommenders = await db.User.scope([
-        "platform",
-        "followers"
-      ]).findAll({
+      const recommenders = await db.User.findAll({
         attributes: {
           include: [
             [
