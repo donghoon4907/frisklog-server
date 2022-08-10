@@ -68,7 +68,7 @@ export default (sequelize, DataTypes) => {
   };
 
   Post.associate = db => {
-    db.Post.belongsTo(db.User, { onDelete: "cascade" });
+    db.Post.belongsTo(db.User);
     db.Post.hasMany(db.Comment, { as: "PostComments", onDelete: "cascade" });
     db.Post.belongsToMany(db.User, { through: "Likes", as: "Likers" });
     db.Post.belongsToMany(db.Category, { through: "PostCategories" });

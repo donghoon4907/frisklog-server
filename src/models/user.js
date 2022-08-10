@@ -121,6 +121,8 @@ export default (sequelize, DataTypes) => {
       as: "Followings",
       foreignKey: "FollowerId"
     });
+    db.User.belongsToMany(db.Room, { through: "RoomMembers", as: "Rooms" });
+    db.User.hasMany(db.Message, { as: "UserMessages", onDelete: "cascade" });
   };
 
   return User;

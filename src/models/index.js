@@ -6,9 +6,9 @@ import Post from "./post";
 import Comment from "./comment";
 import Platform from "./platform";
 import Category from "./category";
+import Room from "./room";
+import Message from "./message";
 // import History from "./history";
-// import Notice from "./notice";
-// import BackupQueue from "./backupQueue";
 
 const env = process.env.NODE_ENV || "development";
 
@@ -23,6 +23,8 @@ db.Post = Post(sequelize, Sequelize);
 db.Comment = Comment(sequelize, Sequelize);
 db.Platform = Platform(sequelize, Sequelize);
 db.Category = Category(sequelize, Sequelize);
+db.Room = Room(sequelize, Sequelize);
+db.Message = Message(sequelize, Sequelize);
 // db.History = History(sequelize, Sequelize);
 // db.Notice = Notice(sequelize, Sequelize);
 // db.BackupQueue = BackupQueue(sequelize, Sequelize);

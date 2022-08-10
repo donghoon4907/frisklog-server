@@ -1,13 +1,22 @@
 import { withTimezone } from "../module/moment";
 
 export default (sequelize, DataTypes) => {
-  const Comment = sequelize.define(
-    "Comment",
+  const Message = sequelize.define(
+    "Message",
     {
       content: {
         type: DataTypes.TEXT,
         allowNull: false,
         comment: "내용"
+      },
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        comment: "타입",
+        defaultValue: "chat",
+        validate: {
+          isIn: [["chat", "notice"]]
+        }
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -28,24 +37,11 @@ export default (sequelize, DataTypes) => {
       paranoid: true
     }
   );
-  Comment.scopes = db => {
-    db.Comment.addScope("user", {
-      include: [
-        {
-          model: db.User,
-          include: [
-            {
-              model: db.Platform
-            }
-          ]
-        }
-      ]
-    });
-  };
-  Comment.associate = db => {
-    db.Comment.belongsTo(db.User);
-    db.Comment.belongsTo(db.Post);
+
+  Message.associate = db => {
+    db.Message.belongsTo(db.Room);
+    db.Message.belongsTo(db.User);
   };
 
-  return Comment;
+  return Message;
 };
