@@ -12,11 +12,22 @@ export default (sequelize, DataTypes) => {
       type: {
         type: DataTypes.STRING,
         allowNull: false,
-        comment: "타입",
         defaultValue: "chat",
         validate: {
           isIn: [["chat", "notice"]]
-        }
+        },
+        comment: "타입"
+      },
+      isRead: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        comment: "읽기 여부"
+      },
+      UserId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        comment: "사용자ID"
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -40,7 +51,6 @@ export default (sequelize, DataTypes) => {
 
   Message.associate = db => {
     db.Message.belongsTo(db.Room);
-    db.Message.belongsTo(db.User);
   };
 
   return Message;

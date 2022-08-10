@@ -1,0 +1,27 @@
+type Room {
+  id: ID!
+  title: String
+  createdAt: String!
+  updatedAt: String!
+  Messages: [Message!]!
+  Members: [User!]!
+}
+
+type Message {
+  id: ID!
+  content: String!
+  type: String!
+  isRead: Boolean!
+  createdAt: String!
+  updatedAt: String!
+  isDeleted: Boolean
+  User: User!
+}
+
+type Query {
+  rooms(offset: Int, limit: Int!): [Room!]!
+}
+
+type Mutation {
+  addRoom(title: String, userId: String!): Boolean!
+}

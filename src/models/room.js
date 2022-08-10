@@ -30,8 +30,8 @@ export default (sequelize, DataTypes) => {
   );
 
   Room.associate = db => {
-    db.Room.belongsToMany(db.User, { through: "RoomMembers", as: "Members" });
-    db.Room.hasMany(db.Message, { as: "RoomMessages", onDelete: "cascade" });
+    db.Room.hasMany(db.Member, { as: "Members", onDelete: "cascade" });
+    db.Room.hasMany(db.Message, { as: "Messages", onDelete: "cascade" });
   };
 
   return Room;
