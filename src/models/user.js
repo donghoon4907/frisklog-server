@@ -1,7 +1,5 @@
 import { withTimezone } from "../module/moment";
 import { DEFAULT_AVATAR } from "../module/constants";
-import { frisklogGraphQLError } from "../module/http";
-import { USER_CREATE_ERROR } from "../config/message/user";
 
 export default (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -18,9 +16,13 @@ export default (sequelize, DataTypes) => {
         comment: "이메일"
       },
       link: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        comment: "블로그주소"
+        type: DataTypes.VIRTUAL,
+        get() {
+          return `/user/${this.id}`;
+        },
+        set(value) {
+          throw new Error("link는 변경할 수 없습니다.");
+        }
       },
       isMaster: {
         type: DataTypes.BOOLEAN,
@@ -38,6 +40,37 @@ export default (sequelize, DataTypes) => {
         allowNull: false,
         comment: "프로필사진",
         defaultValue: DEFAULT_AVATAR
+      },
+      status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "offline",
+        validate: {
+          isIn: [["online", "offline", "away", "busy"]]
+        },
+        comment: "상태"
+      },
+      statusText: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          const status = this.status;
+
+          let statusText = null;
+          if (status === "online") {
+            statusText = "온라인";
+          } else if (status === "offline") {
+            statusText = "오프라인";
+          } else if (status === "away") {
+            statusText = "자리비움";
+          } else if (status === "busy") {
+            statusText = "바쁨";
+          }
+
+          return statusText;
+        },
+        set(value) {
+          throw new Error("statusText는 변경할 수 없습니다.");
+        }
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -59,16 +92,6 @@ export default (sequelize, DataTypes) => {
     }
   );
 
-  User.afterCreate(async (user, { transaction }) => {
-    if (user === null) {
-      frisklogGraphQLError(USER_CREATE_ERROR, {
-        status: 403
-      });
-    }
-
-    await user.update({ link: `/user/${user.id}` }, { transaction });
-  });
-
   User.beforeUpdate(user => {
     const { avatar } = user;
 
@@ -79,7 +102,22 @@ export default (sequelize, DataTypes) => {
     }
   });
 
-  User.scopes = db => {
+  User.associate = db => {
+    db.User.belongsTo(db.Platform);
+    db.User.hasMany(db.Post, { as: "Posts", onDelete: "cascade" });
+    db.User.hasMany(db.Comment, { as: "UserComments", onDelete: "cascade" });
+    db.User.belongsToMany(db.Post, { through: "Likes", as: "LikedPost" });
+    db.User.belongsToMany(db.User, {
+      through: "Follows",
+      as: "Followers",
+      foreignKey: "FollowingId"
+    });
+    db.User.belongsToMany(db.User, {
+      through: "Follows",
+      as: "Followings",
+      foreignKey: "FollowerId"
+    });
+
     db.User.addScope("posts", {
       include: [
         {
@@ -103,23 +141,6 @@ export default (sequelize, DataTypes) => {
           as: "Platform"
         }
       ]
-    });
-  };
-
-  User.associate = db => {
-    db.User.belongsTo(db.Platform);
-    db.User.hasMany(db.Post, { as: "Posts", onDelete: "cascade" });
-    db.User.hasMany(db.Comment, { as: "UserComments", onDelete: "cascade" });
-    db.User.belongsToMany(db.Post, { through: "Likes", as: "LikedPost" });
-    db.User.belongsToMany(db.User, {
-      through: "Follows",
-      as: "Followers",
-      foreignKey: "FollowingId"
-    });
-    db.User.belongsToMany(db.User, {
-      through: "Follows",
-      as: "Followings",
-      foreignKey: "FollowerId"
     });
   };
 

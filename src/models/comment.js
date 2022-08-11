@@ -28,23 +28,18 @@ export default (sequelize, DataTypes) => {
       paranoid: true
     }
   );
-  Comment.scopes = db => {
-    db.Comment.addScope("user", {
-      include: [
-        {
-          model: db.User,
-          include: [
-            {
-              model: db.Platform
-            }
-          ]
-        }
-      ]
-    });
-  };
+
   Comment.associate = db => {
     db.Comment.belongsTo(db.User);
     db.Comment.belongsTo(db.Post);
+
+    db.Comment.addScope("user", {
+      include: [
+        {
+          model: db.User
+        }
+      ]
+    });
   };
 
   return Comment;

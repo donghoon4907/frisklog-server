@@ -28,7 +28,7 @@ type Query {
 }
 
 type Mutation {
-  addComment(postId: String!, content: String!): Comment!
+  addComment(postId: String!, content: String!): Boolean!
 
   updateComment(id: String!, content: String!): Boolean!
 

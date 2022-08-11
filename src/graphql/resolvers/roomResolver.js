@@ -14,19 +14,7 @@ export default {
 
       const me = await isAuthenticated({ request });
 
-      const rooms = await db.Room.findAll({
-        includes: [
-          {
-            model: db.User,
-            as: "Members",
-            where: {
-              id: me.id
-            }
-          },
-          {
-            model: db.Message
-          }
-        ],
+      const rooms = await db.Room.findAllByUser(me.id, {
         offset,
         limit,
         order: [db.Message, "createdAt", "DESC"]
@@ -55,68 +43,36 @@ export default {
         });
       }
 
-      const room = await db.Room.create({
-        title
-      });
+      const myRooms = await db.Room.findAllByUser(me.id);
 
-      await room.addMembers([me, user]);
+      let newRoom = null;
+      for (let i = 0; i < myRooms.length; i++) {
+        const exist = await myRooms[i].hasMember(user.id);
 
-      return true;
-    },
-    /**
-     * 댓글 수정
-     *
-     * @param {string} args.id      댓글 ID
-     * @param {string} args.content 내용
-     */
-    updateComment: async (_, args, { request, isAuthenticated, db }) => {
-      const { id, content } = args;
-
-      const me = await isAuthenticated({ request });
-
-      const comment = await db.Comment.findByPk(id);
-
-      if (comment === null) {
-        frisklogGraphQLError(COMMENT_NOT_FOUND, {
-          status: 403
-        });
-        // 본인 댓글이 아닌 경우
-      } else if (comment.UserId !== me.id) {
-        frisklogGraphQLError(WRONG_APPROACH, {
-          status: 403
-        });
+        if (exist) {
+          newRoom = myRooms[i];
+          break;
+        }
       }
 
-      await comment.update({ content });
+      if (newRoom === null) {
+        const params = {};
 
-      return true;
-    },
-    /**
-     * 댓글 삭제
-     *
-     * @param {string} args.id 게시물 ID
-     */
-    deleteComment: async (_, args, { request, isAuthenticated, db }) => {
-      const { id } = args;
+        if (title) {
+          params["title"] = title;
+        }
 
-      const me = await isAuthenticated({ request });
+        const room = await db.Room.create(params);
 
-      const comment = await db.Comment.findByPk(id);
+        const members = [me, user];
+        for (let i = 0; i < members.length; i++) {
+          await room.addMember(db, members[i].id);
+        }
 
-      if (comment === null) {
-        frisklogGraphQLError(COMMENT_NOT_FOUND, {
-          status: 403
-        });
-        // 본인 댓글이 아닌 경우
-      } else if (comment.UserId !== me.id) {
-        frisklogGraphQLError(WRONG_APPROACH, {
-          status: 403
-        });
+        newRoom = room;
       }
 
-      await comment.destroy();
-
-      return true;
+      return newRoom;
     }
   }
 };

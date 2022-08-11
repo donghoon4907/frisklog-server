@@ -34,19 +34,12 @@ export default (sequelize, DataTypes) => {
       paranoid: true
     }
   );
-  Post.scopes = db => {
-    db.Post.addScope("user", {
-      include: [
-        {
-          model: db.User,
-          include: [
-            {
-              model: db.Platform
-            }
-          ]
-        }
-      ]
-    });
+
+  Post.associate = db => {
+    db.Post.belongsTo(db.User);
+    db.Post.hasMany(db.Comment, { as: "PostComments", onDelete: "cascade" });
+    db.Post.belongsToMany(db.User, { through: "Likes", as: "Likers" });
+    db.Post.belongsToMany(db.Category, { through: "PostCategories" });
 
     db.Post.addScope("likers", {
       include: [
@@ -65,13 +58,6 @@ export default (sequelize, DataTypes) => {
         }
       ]
     });
-  };
-
-  Post.associate = db => {
-    db.Post.belongsTo(db.User);
-    db.Post.hasMany(db.Comment, { as: "PostComments", onDelete: "cascade" });
-    db.Post.belongsToMany(db.User, { through: "Likes", as: "Likers" });
-    db.Post.belongsToMany(db.Category, { through: "PostCategories" });
   };
 
   return Post;

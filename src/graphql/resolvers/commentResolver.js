@@ -31,7 +31,7 @@ export default {
 
       const [totalCount, { rows, count }] = await Promise.all([
         db.Comment.count({ where }),
-        db.Comment.scope(["user"]).findAndCountAll({
+        db.Comment.scope("user").findAndCountAll({
           where: helper.where,
           limit,
           order: helper.order
@@ -61,19 +61,13 @@ export default {
         });
       }
 
-      const comment = await db.Comment.create({
+      await db.Comment.create({
         content,
         UserId: me.id,
         PostId: postId
       });
 
-      if (comment === null) {
-        frisklogGraphQLError(COMMENT_CREATE_ERROR, {
-          status: 403
-        });
-      }
-
-      return comment;
+      return true;
     },
     /**
      * 댓글 수정

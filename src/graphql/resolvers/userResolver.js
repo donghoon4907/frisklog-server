@@ -197,6 +197,10 @@ export default {
         });
       }
 
+      user.status = "online";
+
+      await user.save();
+
       user["token"] = generateToken(user, keep ? null : "3h");
 
       return user;
@@ -308,9 +312,10 @@ export default {
      *
      * @param {string?}  args.nickname 별명
      * @param {string?}  args.avatar   프로필사진 경로
+     * @param {string?}  args.status   상태
      */
     updateUser: async (_, args, { request, isAuthenticated, db }) => {
-      const { nickname, avatar } = args;
+      const { nickname, avatar, status } = args;
 
       const me = await isAuthenticated({ request });
 
@@ -335,6 +340,10 @@ export default {
 
       if (avatar) {
         param["avatar"] = avatar;
+      }
+
+      if (status) {
+        param["status"] = status;
       }
 
       const updatedUser = await me.update(param);

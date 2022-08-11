@@ -6,6 +6,8 @@ type User {
   avatar: String
   token: String
   link: String
+  status: String
+  statusText: String
   createdAt: String!
   updatedAt: String!
   postCount: Int # 사용자의 포스트 수
@@ -58,7 +60,7 @@ type Mutation {
 
   addUser(email: String!, nickname: String!, avatar: String): Boolean!
 
-  updateUser(nickname: String, avatar: String): User!
+  updateUser(nickname: String, status: String, avatar: String): User!
 
   follow(id: String!): Boolean!
 

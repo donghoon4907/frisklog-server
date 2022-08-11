@@ -23,5 +23,5 @@ type Query {
 }
 
 type Mutation {
-  addRoom(title: String, userId: String!): Boolean!
+  addRoom(title: String, userId: String!): Room!
 }
