@@ -4,22 +4,20 @@ type Room {
   createdAt: String!
   updatedAt: String!
   Messages: [Message!]!
-  Members: [User!]!
+  Members: [Member!]!
+  Partner: User
 }
 
-type Message {
+type Member {
   id: ID!
-  content: String!
-  type: String!
-  isRead: Boolean!
-  createdAt: String!
-  updatedAt: String!
-  isDeleted: Boolean
+  isChat: Boolean!
   User: User!
 }
 
 type Query {
   rooms(offset: Int, limit: Int!): [Room!]!
+
+  room(id: String): Room!
 }
 
 type Mutation {

@@ -1,5 +1,6 @@
 import { frisklogGraphQLError } from "../../module/http";
 import { USER_NOT_FOUND } from "../../config/message/user";
+import { ROOM_NOT_FOUND } from "../../config/message/room";
 
 export default {
   Query: {
@@ -14,13 +15,50 @@ export default {
 
       const me = await isAuthenticated({ request });
 
-      const rooms = await db.Room.findAllByUser(me.id, {
+      const rooms = await db.Room.scope({
+        method: ["byMember", me.id]
+      }).findAll({
+        include: [
+          {
+            model: db.Message,
+            as: "Messages"
+          }
+        ],
         offset,
-        limit,
-        order: [db.Message, "createdAt", "DESC"]
+        limit
       });
 
+      for (let i = 0; i < rooms.length; i++) {
+        const partner = await rooms[i].getPartner(db, me.id);
+
+        rooms[i].Partner = partner.toJSON();
+      }
+
       return rooms;
+    },
+    /**
+     * 채팅방 상세 정보
+     *
+     * @param {string} args.id 채팅방 ID
+     */
+    room: async (_, args, { db, request, isAuthenticated }) => {
+      const { id } = args;
+
+      const me = await isAuthenticated({ request });
+
+      const room = await db.Room.findOne({ where: { id } });
+
+      if (room === null) {
+        frisklogGraphQLError(ROOM_NOT_FOUND, {
+          status: 403
+        });
+      }
+
+      const partner = await room.getPartner(db, me.id);
+
+      room.Partner = partner.toJSON();
+
+      return room;
     }
   },
   Mutation: {

@@ -1,3 +1,5 @@
+import { Op } from "sequelize";
+
 import { withTimezone } from "../module/moment";
 
 export default (sequelize, DataTypes) => {
@@ -47,8 +49,20 @@ export default (sequelize, DataTypes) => {
     }));
   };
 
-  Room.findAllByUser = async function(UserId, params = {}) {
-    return this.scope({ method: ["byMember", UserId] }).findAll(params);
+  Room.findAllByUser = async function(UserId) {
+    return this.scope({ method: ["byMember", UserId] }).findAll();
+  };
+
+  Room.prototype.getPartner = async function(db, UserId) {
+    const members = await this.getMembers({
+      where: {
+        UserId: {
+          [Op.not]: UserId
+        }
+      }
+    });
+
+    return db.User.findByPk(members[0].UserId);
   };
 
   Room.prototype.hasMember = async function(UserId) {

@@ -1,5 +1,5 @@
 import express from "express";
-import { createServer } from "@graphql-yoga/node";
+import { createServer, createPubSub } from "@graphql-yoga/node";
 import morgan from "morgan";
 import cors from "cors";
 import fileUpload from "express-fileupload";
@@ -11,9 +11,11 @@ import db from "./models";
 import { isAuthenticated } from "./module/middleware";
 // import "./schedule";
 
+const pubSub = createPubSub();
+
 const graphQLServer = createServer({
   schema,
-  context: ({ request }) => ({ request, isAuthenticated, db })
+  context: ({ request }) => ({ request, isAuthenticated, db, pubSub })
 });
 
 const app = express();
