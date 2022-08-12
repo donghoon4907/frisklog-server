@@ -1,6 +1,19 @@
-type PageInfo {
+type CursorPageInfo {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
   startCursor: String
   endCursor: String
+}
+
+type OffsetPageInfo {
+  currentPage: Int!
+  lastPage: Int!
+  pageSize: Int!
+  nodeCount: Int!
+  totalCount: Int!
+}
+
+type Metadata {
+  previousItemId: ID
+  nextItemId: ID
 }

@@ -13,7 +13,7 @@ import {
 import { WRONG_AUTH } from "../../config";
 import { sendMail } from "../../module/mail";
 import { HOME_PLATFORM_ID, GITHUB_PLATFORM_ID } from "../../module/constants";
-import RelayStyleCursorPagination from "../../module/paginate/cursor/relay";
+import CursorPaginate from "../../module/paginate/cursor";
 
 export default {
   Query: {
@@ -120,7 +120,7 @@ export default {
         };
       }
 
-      const helper = new RelayStyleCursorPagination({ ...other, where });
+      const helper = new CursorPaginate({ ...other, where });
 
       const [total, cursors, followings] = await Promise.all([
         me.getFollowings({ where }),

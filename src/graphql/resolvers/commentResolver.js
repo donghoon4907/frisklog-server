@@ -1,12 +1,9 @@
 import { frisklogGraphQLError } from "../../module/http";
 
-import {
-  COMMENT_NOT_FOUND,
-  COMMENT_CREATE_ERROR
-} from "../../config/message/comment";
+import { COMMENT_NOT_FOUND } from "../../config/message/comment";
 import { POST_NOT_FOUND } from "../../config/message/post";
 import { WRONG_APPROACH } from "../../config/message";
-import RelayStyleCursorPagination from "../../module/paginate/cursor/relay";
+import CursorPaginate from "../../module/paginate/cursor";
 
 export default {
   Query: {
@@ -27,7 +24,7 @@ export default {
         PostId: postId
       };
 
-      const helper = new RelayStyleCursorPagination({ ...other, where });
+      const helper = new CursorPaginate({ ...other, where });
 
       const [totalCount, { rows, count }] = await Promise.all([
         db.Comment.count({ where }),

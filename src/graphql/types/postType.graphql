@@ -17,7 +17,7 @@ type PostEdge {
 type PostResponse {
   totalCount: Int!
   edges: [PostEdge!]!
-  pageInfo: PageInfo!
+  pageInfo: CursorPageInfo!
 }
 
 type Query {

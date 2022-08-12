@@ -1,27 +1,30 @@
 type Message {
   id: ID!
   content: String!
-  type: String!
-  isRead: Boolean!
+  from: User!
+  to: User!
+  readedTime: String
   createdAt: String!
-  updatedAt: String!
-  isDeleted: Boolean
-  User: User!
 }
 
-type MessageSubscriptionPayload {
-  mutation: String!
+type MessageResponse {
+  nodes: [Message!]!
+  pageInfo: OffsetPageInfo!
+}
+
+type MessageDetail {
   node: Message!
+  metadata: Metadata!
 }
 
 type Query {
-  messages(offset: Int, limit: Int!, roomId: String!): [Message!]!
+  receivedMessages(offset: Int, limit: Int!): MessageResponse!
+
+  sentMessages(offset: Int, limit: Int!): MessageResponse!
+
+  message(id: ID!): MessageDetail!
 }
 
 type Mutation {
-  addMessage(roomId: String!, content: String!): Boolean!
-}
-
-type Subscription {
-  messageAdded(roomId: String!): MessageSubscriptionPayload!
+  sendMessage(content: String!, to: ID!): Message!
 }

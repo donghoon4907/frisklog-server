@@ -14,7 +14,7 @@ type CommentEdge {
 type CommentResponse {
   totalCount: Int!
   edges: [CommentEdge!]!
-  pageInfo: PageInfo!
+  pageInfo: CursorPageInfo!
 }
 
 type Query {

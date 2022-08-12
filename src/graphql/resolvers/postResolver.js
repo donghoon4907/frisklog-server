@@ -1,13 +1,8 @@
 import { frisklogGraphQLError } from "../../module/http";
-import {
-  POST_NOT_FOUND,
-  POST_CREATE_ERROR,
-  POST_UPDATE_ERROR,
-  POST_DESTROY_ERROR
-} from "../../config/message/post";
+import { POST_NOT_FOUND } from "../../config/message/post";
 import { CATEGORY_NOT_FOUND } from "../../config/message/category";
 import { WRONG_APPROACH } from "../../config/message";
-import RelayStyleCursorPagination from "../../module/paginate/cursor/relay";
+import CursorPaginate from "../../module/paginate/cursor";
 
 export default {
   Query: {
@@ -72,7 +67,7 @@ export default {
         };
       }
 
-      const helper = new RelayStyleCursorPagination({ ...other, where });
+      const helper = new CursorPaginate({ ...other, where });
 
       const commonOption = {
         include: [
@@ -126,7 +121,7 @@ export default {
 
       const where = {};
 
-      const helper = new RelayStyleCursorPagination({ ...other, where });
+      const helper = new CursorPaginate({ ...other, where });
 
       const [total, cursors, posts] = await Promise.all([
         category.getPosts(),
@@ -178,11 +173,6 @@ export default {
         UserId: me.id
       });
 
-      if (post === null) {
-        frisklogGraphQLError(POST_CREATE_ERROR, {
-          status: 403
-        });
-      }
       // 카테고리 추가
       for (let i = 0; i < categories.length; i++) {
         const [category] = await db.Category.findOrCreate({
@@ -221,11 +211,6 @@ export default {
 
       const updatedPost = await post.update({ content });
 
-      if (updatedPost === null) {
-        frisklogGraphQLError(POST_UPDATE_ERROR, {
-          status: 403
-        });
-      }
       // 기존에 저장된 카테고리 삭제 작업
       const prevCats = await updatedPost.getCategories();
 
@@ -266,11 +251,6 @@ export default {
 
       const deletedPost = await post.destroy();
 
-      if (deletedPost === null) {
-        frisklogGraphQLError(POST_DESTROY_ERROR, {
-          status: 403
-        });
-      }
       // 기존에 저장된 카테고리 삭제 작업
       const categories = await deletedPost.getCategories();
 

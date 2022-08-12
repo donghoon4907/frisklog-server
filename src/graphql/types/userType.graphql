@@ -25,7 +25,7 @@ type UserEdge {
 type UserResponse {
   totalCount: Int!
   edges: [UserEdge!]!
-  pageInfo: PageInfo!
+  pageInfo: CursorPageInfo!
 }
 
 type Query {

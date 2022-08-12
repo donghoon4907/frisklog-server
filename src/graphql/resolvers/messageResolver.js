@@ -1,83 +1,126 @@
+import { Op } from "sequelize";
+
 import { frisklogGraphQLError } from "../../module/http";
-import { ROOM_NOT_FOUND } from "../../config/message/room";
+import { USER_NOT_FOUND } from "../../config/message/user";
+import OffsetPaginate from "../../module/paginate/offset";
 
 export default {
   Query: {
     /**
-     * 채팅방의 메세지 검색
+     * 받은 메세지 목록
      *
      * @param {number?} args.offset 목록 시작 인덱스
      * @param {number}  args.limit  요청 목록의 수
      */
-    messages: async (_, args, { db, request, isAuthenticated }) => {
+    receivedMessages: async (_, args, { db, request, isAuthenticated }) => {
       const { offset = 0, limit } = args;
 
       const me = await isAuthenticated({ request });
 
-      const rooms = await db.Room.scope({
-        method: ["byMember", me.id]
-      }).findAll({
-        include: [
-          {
-            model: db.Message,
-            as: "Messages"
-          }
-        ],
+      const paginate = new OffsetPaginate({ offset, limit });
+
+      const { rows, count } = await db.Message.findAndCountAll({
+        where: {
+          to: me.id
+        },
+        order: [["id", "DESC"]],
         offset,
         limit
       });
 
-      for (let i = 0; i < rooms.length; i++) {
-        const partner = await rooms[i].getPartner(db, me.id);
+      return paginate.response(rows, count);
+    },
+    /**
+     * 보낸 메세지 목록
+     *
+     * @param {number?} args.offset 목록 시작 인덱스
+     * @param {number}  args.limit  요청 목록의 수
+     */
+    sentMessages: async (_, args, { db, request, isAuthenticated }) => {
+      const { offset = 0, limit } = args;
 
-        rooms[i].Partner = partner.toJSON();
+      const me = await isAuthenticated({ request });
+
+      const paginate = new OffsetPaginate({ offset, limit });
+
+      const { rows, count } = await db.Message.findAndCountAll({
+        where: {
+          from: me.id
+        },
+        order: [["id", "DESC"]],
+        offset,
+        limit
+      });
+
+      return paginate.response(rows, count);
+    },
+    /**
+     * 메세지 상세
+     *
+     */
+    message: async (_, args, { db, request, isAuthenticated }) => {
+      const { id } = args;
+
+      const me = await isAuthenticated({ request });
+
+      const message = await db.Message.getByPk(id);
+
+      if (message.to.id === me.id && message.readedTime === null) {
+        message.readedTime = new Date();
+
+        await message.save();
       }
 
-      return rooms;
+      let previousItemId = null;
+
+      const previousMessage = await message.getPreviousItem();
+      if (previousMessage !== null) {
+        previousItemId = previousMessage.id;
+      }
+
+      let nextItemId = null;
+
+      const nextMessage = await message.getNextItem();
+      if (nextMessage !== null) {
+        nextItemId = nextMessage.id;
+      }
+
+      return {
+        node: message,
+        metadata: {
+          previousItemId,
+          nextItemId
+        }
+      };
     }
   },
   Mutation: {
     /**
-     * 메세지 등록
+     * 메세지 보내기
      *
-     * @param {string} args.content 메세지
-     * @param {string} args.roomId  채팅방 ID
+     * @param {string} args.content 메세지 내용
+     * @param {string} args.to      사용자 ID
      */
-    addMessage: async (_, args, { request, isAuthenticated, db, pubSub }) => {
-      const { content, roomId } = args;
+    sendMessage: async (_, args, { request, isAuthenticated, db, pubSub }) => {
+      const { content, to } = args;
 
       const me = await isAuthenticated({ request });
 
+      const user = await db.User.findByPk(to);
+
+      if (user === null) {
+        frisklogGraphQLError(USER_NOT_FOUND, {
+          status: 403
+        });
+      }
+
       const message = await db.Message.create({
         content,
-        UserId: me.id,
-        RoomId: roomId
+        from: me.id,
+        to: user.id
       });
 
-      pubSub.publish("message", roomId, {
-        mutation: "CREATED",
-        node: message
-      });
-
-      return true;
-    }
-  },
-  Subscription: {
-    messageAdded: {
-      subscribe: async (_, args, { db, pubSub }) => {
-        const { roomId } = args;
-
-        const room = await db.Room.findByPk(roomId);
-
-        if (room === null) {
-          frisklogGraphQLError(ROOM_NOT_FOUND, {
-            status: 403
-          });
-        }
-
-        pubSub.subscribe("message", roomId);
-      },
-      resolve: payload => payload
+      return message;
     }
   }
 };

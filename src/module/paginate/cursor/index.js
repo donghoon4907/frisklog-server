@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
 
-class RelayStyleCursorPagination {
+class CursorPaginate {
   constructor({ before, after, order, where }) {
     this.before = before;
 
@@ -160,4 +160,4 @@ class RelayStyleCursorPagination {
   }
 }
 
-export default RelayStyleCursorPagination;
+export default CursorPaginate;

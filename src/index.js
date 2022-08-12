@@ -1,5 +1,5 @@
 import express from "express";
-import { createServer, createPubSub } from "@graphql-yoga/node";
+import { createServer } from "@graphql-yoga/node";
 import morgan from "morgan";
 import cors from "cors";
 import fileUpload from "express-fileupload";
@@ -11,11 +11,9 @@ import db from "./models";
 import { isAuthenticated } from "./module/middleware";
 // import "./schedule";
 
-const pubSub = createPubSub();
-
 const graphQLServer = createServer({
   schema,
-  context: ({ request }) => ({ request, isAuthenticated, db, pubSub })
+  context: ({ request }) => ({ request, isAuthenticated, db })
 });
 
 const app = express();
@@ -29,7 +27,7 @@ app.use(
   })
 );
 // 로그 활성화
-app.use(morgan("dev"));
+app.use(morgan("common"));
 // graphql 활성화
 app.use("/graphql", graphQLServer);
 // 접근 허용 폴더 설정
