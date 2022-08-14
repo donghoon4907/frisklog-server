@@ -8,7 +8,7 @@ class OffsetPaginate {
   getCurrentPage() {
     const { offset, limit } = this;
 
-    let page = 0;
+    let page = 1;
     if (offset > 0) {
       page = Math.ceil(offset / limit);
     }
@@ -23,11 +23,11 @@ class OffsetPaginate {
   }
 
   response(instances, totalCount) {
-    const { getCurrentPage, getLastPage, limit } = this;
+    const { limit } = this;
 
     const pageInfo = {
-      currentPage: getCurrentPage(),
-      lastPage: getLastPage(totalCount),
+      currentPage: this.getCurrentPage(),
+      lastPage: this.getLastPage(totalCount),
       pageSize: limit,
       nodeCount: instances.length,
       totalCount

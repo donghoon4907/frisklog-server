@@ -4,10 +4,10 @@ const DEFAULT_TIMEZONE = "Asia/Seoul";
 
 const DEFAULT_FORMAT = "YYYY-MM-DD HH:mm:ss";
 
-export const setTimeZone = date =>
+export const setTimeZone = (date, format = DEFAULT_FORMAT) =>
   moment(date)
     .tz(DEFAULT_TIMEZONE)
-    .format(DEFAULT_FORMAT);
+    .format(format);
 /*
 - replace setTimeZone 
 

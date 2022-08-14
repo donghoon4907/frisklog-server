@@ -1,3 +1,5 @@
+import { Op } from "sequelize";
+
 import { frisklogGraphQLError } from "../../module/http";
 import { POST_NOT_FOUND } from "../../config/message/post";
 import { CATEGORY_NOT_FOUND } from "../../config/message/category";
@@ -43,7 +45,7 @@ export default {
 
       if (searchKeyword) {
         where["content"] = {
-          [db.Sequelize.Op.like]: `%${searchKeyword}%`
+          [Op.like]: `%${searchKeyword}%`
         };
       }
 

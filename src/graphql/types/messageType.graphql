@@ -7,7 +7,7 @@ type Message {
   createdAt: String!
 }
 
-type MessageResponse {
+type MessageOffsetBasedResponse {
   nodes: [Message!]!
   pageInfo: OffsetPageInfo!
 }
@@ -18,13 +18,11 @@ type MessageDetail {
 }
 
 type Query {
-  receivedMessages(offset: Int, limit: Int!): MessageResponse!
-
-  sentMessages(offset: Int, limit: Int!): MessageResponse!
+  messages(offset: Int, limit: Int!, type: String!): MessageOffsetBasedResponse!
 
   message(id: ID!): MessageDetail!
 }
 
 type Mutation {
-  sendMessage(content: String!, to: ID!): Message!
+  sendMessage(content: String!, receivers: [ID]): Boolean!
 }

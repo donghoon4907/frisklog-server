@@ -2,6 +2,8 @@ import { setTimeZone } from "../module/moment";
 import { MESSAGE_NOT_FOUND } from "../config/message/message";
 import { frisklogGraphQLError } from "../module/http";
 
+const MESSAGE_FORMAT = "YY-MM-DD HH:mm";
+
 export default (sequelize, DataTypes) => {
   const Message = sequelize.define(
     "Message",
@@ -35,7 +37,7 @@ export default (sequelize, DataTypes) => {
           const readedTime = this.getDataValue("readedTime");
 
           if (readedTime !== null) {
-            readedTime = setTimeZone(readedTime);
+            readedTime = setTimeZone(readedTime, MESSAGE_FORMAT);
           }
 
           return readedTime;
@@ -50,7 +52,7 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false,
         get() {
-          return setTimeZone(this.getDataValue("createdAt"));
+          return setTimeZone(this.getDataValue("createdAt"), MESSAGE_FORMAT);
         }
       }
     },

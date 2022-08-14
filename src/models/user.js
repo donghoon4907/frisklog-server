@@ -1,5 +1,7 @@
 import { setTimeZone } from "../module/moment";
 import { DEFAULT_AVATAR } from "../module/constants";
+import { USER_NOT_FOUND } from "../config/message/user";
+import { frisklogGraphQLError } from "../module/http";
 
 export default (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -126,6 +128,7 @@ export default (sequelize, DataTypes) => {
         }
       ]
     });
+
     db.User.addScope("followers", {
       include: [
         {
@@ -134,14 +137,18 @@ export default (sequelize, DataTypes) => {
         }
       ]
     });
-    db.User.addScope("platform", {
-      include: [
-        {
-          model: db.Platform,
-          as: "Platform"
-        }
-      ]
-    });
+
+    db.User.getByPk = async function(id) {
+      const user = this.findByPk(id);
+
+      if (user === null) {
+        frisklogGraphQLError(USER_NOT_FOUND, {
+          status: 403
+        });
+      }
+
+      return user;
+    };
   };
 
   return User;

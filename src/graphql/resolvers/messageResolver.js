@@ -1,52 +1,40 @@
-import { Op } from "sequelize";
-
 import { frisklogGraphQLError } from "../../module/http";
-import { USER_NOT_FOUND } from "../../config/message/user";
+import {
+  MESSAGE_DISALLOW_TYPE,
+  MESSAGE_EMPTY_RECEIVERS
+} from "../../config/message/message";
 import OffsetPaginate from "../../module/paginate/offset";
 
 export default {
   Query: {
     /**
-     * 받은 메세지 목록
+     * 메세지 목록
      *
      * @param {number?} args.offset 목록 시작 인덱스
      * @param {number}  args.limit  요청 목록의 수
+     * @param {string}  args.type   요청 타입
      */
-    receivedMessages: async (_, args, { db, request, isAuthenticated }) => {
-      const { offset = 0, limit } = args;
+    messages: async (_, args, { db, request, isAuthenticated }) => {
+      const { offset = 0, limit, type } = args;
 
       const me = await isAuthenticated({ request });
+
+      const where = {};
+
+      if (type === "receive") {
+        where["to"] = me.id;
+      } else if (type === "sent") {
+        where["from"] = me.id;
+      } else {
+        frisklogGraphQLError(MESSAGE_DISALLOW_TYPE, {
+          status: 403
+        });
+      }
 
       const paginate = new OffsetPaginate({ offset, limit });
 
       const { rows, count } = await db.Message.findAndCountAll({
-        where: {
-          to: me.id
-        },
-        order: [["id", "DESC"]],
-        offset,
-        limit
-      });
-
-      return paginate.response(rows, count);
-    },
-    /**
-     * 보낸 메세지 목록
-     *
-     * @param {number?} args.offset 목록 시작 인덱스
-     * @param {number}  args.limit  요청 목록의 수
-     */
-    sentMessages: async (_, args, { db, request, isAuthenticated }) => {
-      const { offset = 0, limit } = args;
-
-      const me = await isAuthenticated({ request });
-
-      const paginate = new OffsetPaginate({ offset, limit });
-
-      const { rows, count } = await db.Message.findAndCountAll({
-        where: {
-          from: me.id
-        },
+        where,
         order: [["id", "DESC"]],
         offset,
         limit
@@ -101,26 +89,28 @@ export default {
      * @param {string} args.content 메세지 내용
      * @param {string} args.to      사용자 ID
      */
-    sendMessage: async (_, args, { request, isAuthenticated, db, pubSub }) => {
-      const { content, to } = args;
+    sendMessage: async (_, args, { request, isAuthenticated, db }) => {
+      const { content, receivers } = args;
 
       const me = await isAuthenticated({ request });
 
-      const user = await db.User.findByPk(to);
-
-      if (user === null) {
-        frisklogGraphQLError(USER_NOT_FOUND, {
+      if (receivers.length === 0) {
+        frisklogGraphQLError(MESSAGE_EMPTY_RECEIVERS, {
           status: 403
         });
       }
 
-      const message = await db.Message.create({
-        content,
-        from: me.id,
-        to: user.id
-      });
+      for (let i = 0; i < receivers.length; i++) {
+        const user = await db.User.getByPk(receivers[i]);
 
-      return message;
+        await db.Message.create({
+          content,
+          from: me.id,
+          to: user.id
+        });
+      }
+
+      return true;
     }
   }
 };

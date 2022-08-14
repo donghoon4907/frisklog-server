@@ -14,9 +14,39 @@ import { WRONG_AUTH } from "../../config";
 import { sendMail } from "../../module/mail";
 import { HOME_PLATFORM_ID, GITHUB_PLATFORM_ID } from "../../module/constants";
 import CursorPaginate from "../../module/paginate/cursor";
+import OffsetPaginate from "../../module/paginate/offset";
 
 export default {
   Query: {
+    /**
+     * 사용자 목록
+     *
+     * @param {number?} args.offset   목록 시작 인덱스
+     * @param {number}  args.limit    요청 목록의 수
+     * @param {string?} args.nickname  닉네임
+     */
+    users: async (_, args, { db }) => {
+      const { offset = 0, limit, nickname } = args;
+
+      const where = {};
+
+      if (nickname) {
+        where["nickname"] = {
+          [Op.like]: `%${nickname}%`
+        };
+      }
+
+      const paginate = new OffsetPaginate({ offset, limit });
+
+      const { rows, count } = await db.User.findAndCountAll({
+        where,
+        order: [["nickname", "ASC"]],
+        offset,
+        limit
+      });
+
+      return paginate.response(rows, count);
+    },
     /**
      * 추천 사용자 검색
      *
@@ -75,13 +105,7 @@ export default {
     followers: async (_, args, { db }) => {
       const { offset = 0, limit, order, userId } = args;
 
-      const user = await db.User.findByPk(userId);
-
-      if (user === null) {
-        frisklogGraphQLError(USER_NOT_FOUND, {
-          status: 403
-        });
-      }
+      const user = await db.User.getByPk(userId);
 
       const followers = await user.getFollowers({
         where,
@@ -372,15 +396,9 @@ export default {
 
       const me = await isAuthenticated({ request });
 
-      const user = await db.User.findByPk(id);
+      const user = await db.User.getByPk(id);
 
-      if (user === null) {
-        frisklogGraphQLError(USER_NOT_FOUND, {
-          status: 403
-        });
-      } else {
-        await me.addFollowings(user.id);
-      }
+      await me.addFollowings(user.id);
 
       return true;
     },
@@ -394,15 +412,9 @@ export default {
 
       const me = await isAuthenticated({ request });
 
-      const user = await db.User.findByPk(id);
+      const user = await db.User.getByPk(id);
 
-      if (user === null) {
-        frisklogGraphQLError(USER_NOT_FOUND, {
-          status: 403
-        });
-      } else {
-        await me.removeFollowings(user.id);
-      }
+      me.removeFollowings(user.id);
 
       return true;
     }

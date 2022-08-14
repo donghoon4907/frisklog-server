@@ -22,13 +22,20 @@ type UserEdge {
   cursor: String!
 }
 
-type UserResponse {
+type UserOffsetBasedResponse {
+  nodes: [User!]!
+  pageInfo: OffsetPageInfo!
+}
+
+type UserCursorBasedResponse {
   totalCount: Int!
   edges: [UserEdge!]!
   pageInfo: CursorPageInfo!
 }
 
 type Query {
+  users(offset: Int, limit: Int!, nickname: String): UserOffsetBasedResponse!
+
   recommenders(limit: Int!): [User!]!
 
   user(id: String!): User!
@@ -46,7 +53,7 @@ type Query {
     limit: Int!
     order: [[String]]
     nickname: String
-  ): UserResponse!
+  ): UserCursorBasedResponse!
 }
 
 type Mutation {
